@@ -4,9 +4,10 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  schemas  = ["auth", "public"]
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["auth", "public"]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -92,6 +93,7 @@ model mfa_challenges {
   ip_address  String      @db.Inet
   mfa_factors mfa_factors @relation(fields: [factor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "mfa_challenges_auth_factor_id_fkey")
 
+  @@index([created_at(sort: Desc)], map: "mfa_challenge_created_at_idx")
   @@schema("auth")
 }
 
@@ -263,9 +265,104 @@ model users {
   identities                  identities[]
   mfa_factors                 mfa_factors[]
   sessions                    sessions[]
+  User                        User?
 
   @@index([instance_id])
   @@schema("auth")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Applications {
+  id           BigInt      @id @default(autoincrement())
+  created_at   DateTime?   @default(now()) @db.Timestamptz(6)
+  job_id       BigInt?
+  date_applied DateTime?   @db.Timestamp(6)
+  user_id      BigInt?
+  JobPosting   JobPosting? @relation(fields: [job_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User         User?       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Candidate {
+  id         BigInt    @id(map: "candidate_pkey") @default(autoincrement())
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  is_visible Boolean?
+  is_locked  Boolean?
+  user_id    BigInt?
+  User       User?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model JobPosting {
+  id             BigInt         @id @default(autoincrement())
+  created_at     DateTime?      @default(now()) @db.Timestamptz(6)
+  description    String?
+  open_date      DateTime?      @db.Timestamp(6)
+  category       String?        @db.VarChar
+  requirements   Json?          @db.Json
+  close_date     DateTime?      @db.Timestamp(6)
+  applicants     BigInt[]
+  posted_by      BigInt?
+  contact_email  String[]
+  salary         Float?
+  contact_number String[]
+  Applications   Applications[]
+  Recruiter_     Recruiter?     @relation(fields: [posted_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Organization {
+  id         BigInt    @id(map: "organization_pkey") @default(autoincrement())
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  name       String?   @db.VarChar
+  bio        String?
+  address    String?
+  is_visible Boolean?
+  state      String?
+
+  @@schema("public")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model User {
+  id           BigInt         @id(map: "user_pkey") @default(autoincrement())
+  created_at   DateTime?      @default(now()) @db.Timestamptz(6)
+  first_name   String?        @db.VarChar
+  last_name    String?        @db.VarChar
+  auth_user_id String         @unique(map: "user_auth_user_id_key") @db.Uuid
+  password     String?        @db.VarChar
+  user_role    Role           @default(USER)
+  Applications Applications[]
+  Candidate    Candidate[]
+  Recruiter    Recruiter[]
+  users        users          @relation(fields: [auth_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Recruiter {
+  id         BigInt       @id(map: "recruiter _pkey") @default(autoincrement())
+  created_at DateTime?    @default(now()) @db.Timestamptz(6)
+  user_id    BigInt?
+  is_visible Boolean?
+  is_locked  Boolean?
+  JobPosting JobPosting[]
+  User       User?        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("public")
 }
 
 enum aal_level {
@@ -295,4 +392,16 @@ enum factor_type {
   webauthn
 
   @@schema("auth")
+}
+
+enum Role {
+  ADMIN
+  SUPPORT
+  USER
+  MANAGING_REPRESENTATIVE
+  RECRUITER
+  CAREER_COACH
+  CANDIDATE
+
+  @@schema("public")
 }
