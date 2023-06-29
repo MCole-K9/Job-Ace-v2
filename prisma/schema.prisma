@@ -228,44 +228,46 @@ model sso_providers {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model users {
-  instance_id                 String?       @db.Uuid
-  id                          String        @id @db.Uuid
-  aud                         String?       @db.VarChar(255)
-  role                        String?       @db.VarChar(255)
-  email                       String?       @db.VarChar(255)
-  encrypted_password          String?       @db.VarChar(255)
-  email_confirmed_at          DateTime?     @db.Timestamptz(6)
-  invited_at                  DateTime?     @db.Timestamptz(6)
-  confirmation_token          String?       @db.VarChar(255)
-  confirmation_sent_at        DateTime?     @db.Timestamptz(6)
-  recovery_token              String?       @db.VarChar(255)
-  recovery_sent_at            DateTime?     @db.Timestamptz(6)
-  email_change_token_new      String?       @db.VarChar(255)
-  email_change                String?       @db.VarChar(255)
-  email_change_sent_at        DateTime?     @db.Timestamptz(6)
-  last_sign_in_at             DateTime?     @db.Timestamptz(6)
+  instance_id                 String?                     @db.Uuid
+  id                          String                      @id @db.Uuid
+  aud                         String?                     @db.VarChar(255)
+  role                        String?                     @db.VarChar(255)
+  email                       String?                     @db.VarChar(255)
+  encrypted_password          String?                     @db.VarChar(255)
+  email_confirmed_at          DateTime?                   @db.Timestamptz(6)
+  invited_at                  DateTime?                   @db.Timestamptz(6)
+  confirmation_token          String?                     @db.VarChar(255)
+  confirmation_sent_at        DateTime?                   @db.Timestamptz(6)
+  recovery_token              String?                     @db.VarChar(255)
+  recovery_sent_at            DateTime?                   @db.Timestamptz(6)
+  email_change_token_new      String?                     @db.VarChar(255)
+  email_change                String?                     @db.VarChar(255)
+  email_change_sent_at        DateTime?                   @db.Timestamptz(6)
+  last_sign_in_at             DateTime?                   @db.Timestamptz(6)
   raw_app_meta_data           Json?
   raw_user_meta_data          Json?
   is_super_admin              Boolean?
-  created_at                  DateTime?     @db.Timestamptz(6)
-  updated_at                  DateTime?     @db.Timestamptz(6)
-  phone                       String?       @unique
-  phone_confirmed_at          DateTime?     @db.Timestamptz(6)
-  phone_change                String?       @default("")
-  phone_change_token          String?       @default("") @db.VarChar(255)
-  phone_change_sent_at        DateTime?     @db.Timestamptz(6)
-  confirmed_at                DateTime?     @default(dbgenerated("LEAST(email_confirmed_at, phone_confirmed_at)")) @db.Timestamptz(6)
-  email_change_token_current  String?       @default("") @db.VarChar(255)
-  email_change_confirm_status Int?          @default(0) @db.SmallInt
-  banned_until                DateTime?     @db.Timestamptz(6)
-  reauthentication_token      String?       @default("") @db.VarChar(255)
-  reauthentication_sent_at    DateTime?     @db.Timestamptz(6)
-  is_sso_user                 Boolean       @default(false)
-  deleted_at                  DateTime?     @db.Timestamptz(6)
+  created_at                  DateTime?                   @db.Timestamptz(6)
+  updated_at                  DateTime?                   @db.Timestamptz(6)
+  phone                       String?                     @unique
+  phone_confirmed_at          DateTime?                   @db.Timestamptz(6)
+  phone_change                String?                     @default("")
+  phone_change_token          String?                     @default("") @db.VarChar(255)
+  phone_change_sent_at        DateTime?                   @db.Timestamptz(6)
+  confirmed_at                DateTime?                   @default(dbgenerated("LEAST(email_confirmed_at, phone_confirmed_at)")) @db.Timestamptz(6)
+  email_change_token_current  String?                     @default("") @db.VarChar(255)
+  email_change_confirm_status Int?                        @default(0) @db.SmallInt
+  banned_until                DateTime?                   @db.Timestamptz(6)
+  reauthentication_token      String?                     @default("") @db.VarChar(255)
+  reauthentication_sent_at    DateTime?                   @db.Timestamptz(6)
+  is_sso_user                 Boolean                     @default(false)
+  deleted_at                  DateTime?                   @db.Timestamptz(6)
   identities                  identities[]
   mfa_factors                 mfa_factors[]
   sessions                    sessions[]
-  User                        User?
+  Candidate                   Candidate?
+  OrganizationRepresentative  OrganizationRepresentative?
+  Profile                     Profile?
 
   @@index([instance_id])
   @@schema("auth")
@@ -278,9 +280,9 @@ model Applications {
   created_at   DateTime?   @default(now()) @db.Timestamptz(6)
   job_id       BigInt?
   date_applied DateTime?   @db.Timestamp(6)
-  user_id      BigInt?
+  candidate_id String?     @db.Uuid
+  Candidate    Candidate?  @relation(fields: [candidate_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   JobPosting   JobPosting? @relation(fields: [job_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  User         User?       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
@@ -288,12 +290,12 @@ model Applications {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Candidate {
-  id         BigInt    @id(map: "candidate_pkey") @default(autoincrement())
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  is_visible Boolean?
-  is_locked  Boolean?
-  user_id    BigInt?
-  User       User?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  created_at   DateTime?      @default(now()) @db.Timestamptz(6)
+  user_id      String         @id @db.Uuid
+  is_visible   Boolean?
+  is_locked    Boolean?
+  Applications Applications[]
+  User         users          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@schema("public")
 }
@@ -301,20 +303,20 @@ model Candidate {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model JobPosting {
-  id             BigInt         @id @default(autoincrement())
-  created_at     DateTime?      @default(now()) @db.Timestamptz(6)
+  id             BigInt                      @id @default(autoincrement())
+  created_at     DateTime?                   @default(now()) @db.Timestamptz(6)
   description    String?
-  open_date      DateTime?      @db.Timestamp(6)
-  category       String?        @db.VarChar
-  requirements   Json?          @db.Json
-  close_date     DateTime?      @db.Timestamp(6)
+  open_date      DateTime?                   @db.Timestamp(6)
+  category       String?                     @db.VarChar
+  requirements   Json?                       @db.Json
+  close_date     DateTime?                   @db.Timestamp(6)
   applicants     BigInt[]
-  posted_by      BigInt?
   contact_email  String[]
   salary         Float?
   contact_number String[]
+  posted_by      String?                     @db.Uuid
   Applications   Applications[]
-  Recruiter_     Recruiter?     @relation(fields: [posted_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Recruiter_     OrganizationRepresentative? @relation(fields: [posted_by], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
 
   @@schema("public")
 }
@@ -335,32 +337,26 @@ model Organization {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model User {
-  id           BigInt         @id(map: "user_pkey") @default(autoincrement())
-  created_at   DateTime?      @default(now()) @db.Timestamptz(6)
-  first_name   String?        @db.VarChar
-  last_name    String?        @db.VarChar
-  auth_user_id String         @unique(map: "user_auth_user_id_key") @db.Uuid
-  password     String?        @db.VarChar
-  user_role    Role           @default(USER)
-  Applications Applications[]
-  Candidate    Candidate[]
-  Recruiter    Recruiter[]
-  users        users          @relation(fields: [auth_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model OrganizationRepresentative {
+  created_at DateTime?    @default(now()) @db.Timestamptz(6)
+  user_id    String       @id @db.Uuid
+  is_locked  Boolean?
+  is_visible Boolean?
+  JobPosting JobPosting[]
+  users      users        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@schema("public")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model Recruiter {
-  id         BigInt       @id(map: "recruiter _pkey") @default(autoincrement())
-  created_at DateTime?    @default(now()) @db.Timestamptz(6)
-  user_id    BigInt?
-  is_visible Boolean?
-  is_locked  Boolean?
-  JobPosting JobPosting[]
-  User       User?        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model Profile {
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  user_id    String    @id @db.Uuid
+  first_name String?   @db.VarChar
+  last_name  String?   @db.VarChar
+  user_role  Role     @default(USER)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@schema("public")
 }
@@ -399,7 +395,7 @@ enum Role {
   SUPPORT
   USER
   MANAGING_REPRESENTATIVE
-  RECRUITER
+  ORGANIZATION_REPRESENTATIVE
   CAREER_COACH
   CANDIDATE
 
