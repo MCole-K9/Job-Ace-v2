@@ -8,7 +8,14 @@ const config = {
 		require('flowbite/plugin')
 	],
 	theme: {
-		extend: {}
+		extend: {
+			colors: {
+				primary: '#ffffff', //White
+				secondary1: '#f2c111', //Gold
+				secondary2: '#1d6ff2 ', //Blue
+				accent: '#54AE9E', //Light Green
+			},
+		}
 	},
 };
 
