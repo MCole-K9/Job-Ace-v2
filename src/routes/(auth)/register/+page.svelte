@@ -9,14 +9,14 @@
 
     const {form, errors, enhance} = superForm(data.form);
 
-    $: user_role = $page.url.searchParams.get('role');
+    $form.user_role = $page.url.searchParams.get('role') ?? $form.user_role;
 
 </script>
 
 <form class="flex flex-col space-y-2 mx-auto my-12 max-w-md" method="POST" use:enhance>
-    {#if user_role}
-        <input type="hidden" name="user_role" bind:value={user_role} />
-    {/if}
+    
+    <input type="hidden"  name="user_role" bind:value={$form.user_role} />
+    
     <div class="grid md:grid-cols-2 gap-4">
         <Input label="First Name" bind:value={$form.first_name} type="text" name="first_name"  >
         </Input>  
