@@ -1,7 +1,7 @@
 import { Role } from '@prisma/client';
 import {z} from 'zod';
 
-export const emailRegistrationSchema = z.object({
+export const email_registration_schema = z.object({
     first_name: z.string().min(1, {message: "First Name is Required"}).max(255),
     last_name: z.string().min(1, {message: "Last Name is Required"}).max(255),
     email: z.string().email({message: "Invalid Email"}),
