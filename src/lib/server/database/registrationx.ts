@@ -3,7 +3,7 @@ import prisma from "./";
 import type { email_registration_schema } from "$lib/schemas";
 import type { z } from "zod";
 
-export const register_x_prisma =  prisma.$extends({
+export const register_x_prisma = prisma.$extends({
     model: {
         profile: {
             async create_profile(user_id: string, data: z.infer<typeof email_registration_schema>){
