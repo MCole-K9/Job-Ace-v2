@@ -340,6 +340,7 @@ model Organization {
 model OrganizationRepresentative {
   created_at DateTime?    @default(now()) @db.Timestamptz(6)
   user_id    String       @id @db.Uuid
+  org_role  OrganizationRole @default(RECRUITER)
   is_locked  Boolean?
   is_visible Boolean?
   JobPosting JobPosting[]
@@ -394,10 +395,17 @@ enum Role {
   ADMIN
   SUPPORT
   USER
-  MANAGING_REPRESENTATIVE
   ORGANIZATION_REPRESENTATIVE
   CAREER_COACH
   CANDIDATE
+
+  @@schema("public")
+}
+
+
+enum OrganizationRole {
+  MANAGING_REPRESENTATIVE
+  RECRUITER
 
   @@schema("public")
 }
