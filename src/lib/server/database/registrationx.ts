@@ -1,9 +1,10 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import prisma from "./";
 import type { email_registration_schema } from "$lib/schemas";
 import type { z } from "zod";
 
-export const register_x_prisma = prisma.$extends({
+//importing initialized prisma client from throws undefined error on $extends but is used in th body of the function ????????
+export const register_x_prisma =  new PrismaClient().$extends({
     model: {
         profile: {
             async create_profile(user_id: string, data: z.infer<typeof email_registration_schema>){

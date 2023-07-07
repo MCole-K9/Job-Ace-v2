@@ -18,14 +18,7 @@
 <Label for={id} >
     <span class="mb-2" >{label}</span>
     <Input {id} {type} bind:value {placeholder} {name} size="sm">
-  
-    <svelte:fragment slot="left">
-        {#if $$slots.left}
-            <slot name="left" />
-        {/if}
-    </svelte:fragment>
-    
-      
+        <slot name="left" slot="left" />
     </Input>
     {#if error}
         <Helper class='mt-2' color='red'><span class="font-medium">{error}</Helper> 
