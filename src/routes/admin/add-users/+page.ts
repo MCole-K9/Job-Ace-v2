@@ -2,7 +2,6 @@ import {Role} from '@prisma/client';
 
 export function load () {
     let user_roles: string[] = [];
-    let roles_plaintext: string[];
 
     // This is probably nasty but tbh, i know it works and i don't feel like finding 
     // how to turn an object into an array
