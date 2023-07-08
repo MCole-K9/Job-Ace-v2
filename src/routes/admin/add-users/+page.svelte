@@ -16,10 +16,12 @@
         <div class="flex flex-col mb-4">
             <Label for="password">Password</Label>
             <Input id="password" type="password"/>
+            <Toggle>Show Password</Toggle>
         </div>
     
         <div class="flex flex-col mb-4">
             <Label for="role" class="text">Select the New User's Role</Label>
+            <!--Mildly annoyed i need to change this to flowbite's whatever select thing-->
             <select on:change={changeNewUserRole} id="role">
                 <option selected disabled>Select a Role</option>
                 {#each roles as role_option}
@@ -57,7 +59,7 @@
     
         {/if}
     
-        <Button on:click={submitNewUser} color="blue" class="mt-8">Create New User</Button>
+        <Button on:click={submitNewUser} type="submit" color="blue" class="mt-8">Create New User</Button>
 
         <div>
 
@@ -67,7 +69,8 @@
 
 
 <script lang="ts">
-    import {Button, Input, Label, Heading} from 'flowbite-svelte';
+    import {Button, Input, Label, Heading, Toggle,
+            Select} from 'flowbite-svelte';
     import {Role} from '@prisma/client';
     export let data;
 
