@@ -15,37 +15,36 @@
         
         <div class="flex flex-col mb-4">
             <Label for="password">Password</Label>
-            <Input id="password" type="password"/>
-            <Toggle>Show Password</Toggle>
+            <Input id="password" type={password_type}/>
+            <Toggle on:change={togglePassword}>Show Password</Toggle>
         </div>
     
         <div class="flex flex-col mb-4">
             <Label for="role" class="text">Select the New User's Role</Label>
-            <!--Mildly annoyed i need to change this to flowbite's whatever select thing-->
-            <select on:change={changeNewUserRole} id="role">
-                <option selected disabled>Select a Role</option>
-                {#each roles as role_option}
-                    <option value="{role_option}">{role_option}</option>
-                {/each}
-            </select>
+            <Select items={roles} bind:value={chosen_role} />
         </div>
     
-        {#if new_user_role === Role.ADMIN}
+        {#if chosen_role === Role.ADMIN}
             <!--This doesn't need anything, unless for some reason it's necessary to 
             identify admins by name-->
-        {:else if new_user_role === Role.SUPPORT}
+        {:else if chosen_role === Role.SUPPORT}
             <!--This doesn't need anything, unless for some reason it's necessary to 
             identify admins by name-->
     
-        {:else if new_user_role === Role.USER}
+        {:else if chosen_role === Role.USER}
             <!--Why is there a generic user role?-->
-        {:else if new_user_role === Role.ORGANIZATION_REPRESENTATIVE}
+        {:else if chosen_role === Role.ORGANIZATION_REPRESENTATIVE}
             <!--Specify whether the user is part of a business already, or is creating one-->
-    
-        {:else if new_user_role === Role.CAREER_COACH}
+            <div>
+                <p>New User is a:</p>
+                <Radio id="recruiter" name="orgRepresentative">Recruiter</Radio>
+                <Radio id="manager" name="orgRepresentative">Manager</Radio>
+            </div>
+
+        {:else if chosen_role === Role.CAREER_COACH}
             <Input/>
     
-        {:else if new_user_role === Role.CANDIDATE}
+        {:else if chosen_role === Role.CANDIDATE}
             <div class="flex flex-col">
                 <Label for="candidate-first-name">First Name</Label>
                 <Input id="candidate-first-name"/>
@@ -70,20 +69,27 @@
 
 <script lang="ts">
     import {Button, Input, Label, Heading, Toggle,
-            Select} from 'flowbite-svelte';
+            Select, Radio
+            } from 'flowbite-svelte';
     import {Role} from '@prisma/client';
     export let data;
 
-    let roles: string[] = data.roles;
-    let new_user_role: string = Role.USER;
-
-    function changeNewUserRole(){
-        let select = <HTMLSelectElement>document.getElementById('role');
-        new_user_role = select.selectedOptions[0].value;
-    }
+    let roles: {name: string, value: string}[] = data.roles;
+    let password_type: 'password' | 'text' = "password";
+    let chosen_role: string;
 
     function submitNewUser(){
         //
     }
     
+    function togglePassword(){
+        if (password_type === "password"){
+            password_type = "text";
+        }
+        else {
+            password_type = "password";
+        }
+
+    }
+
 </script>
