@@ -15,7 +15,7 @@
         
         <div class="flex flex-col mb-4">
             <Label for="password">Password</Label>
-            <Input id="password" type={password_type}/>
+            <Input id="password" type={password_type} bind:value={password}/>
             <Toggle on:change={togglePassword}>Show Password</Toggle>
         </div>
     
@@ -37,31 +37,56 @@
             <!--Specify whether the user is part of a business already, or is creating one-->
             <div>
                 <p>New User is a:</p>
-                <Radio id="recruiter" name="orgRepresentative">Recruiter</Radio>
-                <Radio id="manager" name="orgRepresentative">Manager</Radio>
+                <Radio id="recruiter" name="orgRepresentative" bind:group={org_rep_role}>Recruiter</Radio>
+                <Radio id="manager" name="orgRepresentative" bind:grou={org_rep_role}>Manager</Radio>
+            </div>
+
+            <div class="flex flex-col">
+                <Label for="candidate-first-name">First Name</Label>
+                <Input id="candidate-first-name" bind:value={first_name}/>
+            </div>
+
+            <div class="flex flex-col">
+                <Label for="candidate-last-name">Last Name</Label>
+                <Input id="candidate-last-name" bind:value={last_name}/>
             </div>
 
         {:else if chosen_role === Role.CAREER_COACH}
-            <Input/>
+            <div class="flex flex-col">
+                <Label for="candidate-first-name">First Name</Label>
+                <Input id="candidate-first-name" bind:value={first_name}/>
+            </div>
+
+            <div class="flex flex-col">
+                <Label for="candidate-last-name">Last Name</Label>
+                <Input id="candidate-last-name" bind:value={last_name}/>
+            </div>
     
         {:else if chosen_role === Role.CANDIDATE}
             <div class="flex flex-col">
                 <Label for="candidate-first-name">First Name</Label>
-                <Input id="candidate-first-name"/>
+                <Input id="candidate-first-name" bind:value={first_name}/>
             </div>
     
             <div class="flex flex-col">
                 <Label for="candidate-last-name">Last Name</Label>
-                <Input id="candidate-last-name"/>
+                <Input id="candidate-last-name" bind:value={last_name}/>
             </div>
-    
-    
         {/if}
     
         <Button on:click={submitNewUser} type="submit" color="blue" class="mt-8">Create New User</Button>
 
-        <div>
-
+        <div class="h-12">
+            <!--If: successful, not successful, incomplete (depends on role)-->
+            {#if submission_result === 201}
+                <Alert>User Succesfully Created</Alert>
+            {:else if submission_result === 404}
+                <Alert>Information Missing: (Information)</Alert>
+            {:else if submission_result === 500}
+                <Alert>Cannot Create User: (Reason)</Alert>
+            {:else}
+                <Alert>I'm just here to fill space</Alert>
+            {/if}
         </div>
     </div>
 </div>
@@ -69,17 +94,29 @@
 
 <script lang="ts">
     import {Button, Input, Label, Heading, Toggle,
-            Select, Radio
+            Select, Radio, Alert
             } from 'flowbite-svelte';
     import {Role} from '@prisma/client';
     export let data;
-
+    
+    // related to changing options depending on role
     let roles: {name: string, value: string}[] = data.roles;
     let password_type: 'password' | 'text' = "password";
     let chosen_role: string;
 
+    // related to the values entered by the user
+    // worth looking into: whether or not it's wise 
+    let first_name: string = "";
+    let last_name: string = "";
+    let org_rep_role: string = "";
+    let password: string ="";
+
+    // submission-related
+    let submission_result = 0;
+
+
     function submitNewUser(){
-        //
+        fetch('/api/admin/users', {body: JSON.stringify({})})
     }
     
     function togglePassword(){
