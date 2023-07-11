@@ -1,7 +1,17 @@
 import {Role} from '@prisma/client';
+import {redirect} from '@sveltejs/kit';
 
-export function load () {
+export async function load ({locals: {getSession}}) {
     let user_roles: string[] = [];
+
+    // i'll implement this when login is working
+    // let session = await getSession();
+    // if (!session){
+        
+    //     throw redirect(307, "login required");
+    // }
+
+    
 
     // This is probably nasty but tbh, i know it works and i don't feel like  
     // finding how to turn an object into an array

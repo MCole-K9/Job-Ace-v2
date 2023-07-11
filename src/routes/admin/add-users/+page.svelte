@@ -24,6 +24,7 @@
             <Select items={roles} bind:value={chosen_role} />
         </div>
     
+        <!--This entire if block is technically brittle, i am aware-->
         {#if chosen_role === Role.ADMIN}
             <!--This doesn't need anything, unless for some reason it's necessary to 
             identify admins by name-->
@@ -81,7 +82,7 @@
             {#if submission_result === 201}
                 <Alert>User Succesfully Created</Alert>
             {:else if submission_result === 404}
-                <Alert>Information Missing: (Information)</Alert>
+                <Alert>Cannot Find Route: (Information)</Alert>
             {:else if submission_result === 500}
                 <Alert>Cannot Create User: (Reason)</Alert>
             {:else}
@@ -116,7 +117,27 @@
 
 
     function submitNewUser(){
-        fetch('/api/admin/users', {body: JSON.stringify({})})
+        fetch('/api/admin/users', {body: JSON.stringify({
+                userRole: chosen_role,
+                firstName: first_name,
+                last_name: last_name,
+                organizationRepresentativeRole: org_rep_role,
+                password: password
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }})
+        .then((response) => {
+            if (response.status === 201){
+                // this worked
+            }
+            else if (response.status === 404){
+                // for some reason, route not found
+            }
+            else if (response.status === 500){
+                // the server has experienced some error, 
+            }
+        })
     }
     
     function togglePassword(){
