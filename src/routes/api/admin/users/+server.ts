@@ -19,8 +19,8 @@ export async function POST({request, locals:{getSession}}){
         })(session.user.id);
 
         if (isAdmin){
-            let data = request.body;
-            user_type;
+            let data = await request.json();
+            user_type = data.userType;
             
             switch (user_type){
                 case Role.ADMIN:
