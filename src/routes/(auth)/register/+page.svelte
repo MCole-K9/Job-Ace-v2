@@ -9,7 +9,9 @@
     
     export let data: PageData;
 
-    const {form, errors, enhance, message} = superForm<typeof email_registration_schema, string>(data.form);
+    const {form, errors, enhance, message} = superForm<typeof email_registration_schema, string>(data.form, {
+       resetForm: true
+    });
 
     $form.user_role = $page.url.searchParams.get('role') as typeof $form.user_role ?? $form.user_role;
 
