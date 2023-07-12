@@ -1,6 +1,7 @@
 import {json, error} from '@sveltejs/kit';
 import {Role} from '@prisma/client';
 import { adminOrSupportOrUser, candidateOrCoach, organizationRepresntative } from '$lib/server/addUser.js';
+import {PrismaClient} from '@prisma/client';
 
 export async function GET (){
     // this will probably get all users, i suppose
@@ -17,8 +18,6 @@ export async function POST({request, locals:{getSession, supabase}}){
 
     // check to see if logged in
     if (true){
-        // then, check to see that they are an admin (does supabase have 
-        // transactions? need to look into it)
         /* let isAdmin: boolean = ((userId: string) => { 
             return true
         })(session.user.id); */
@@ -34,22 +33,33 @@ export async function POST({request, locals:{getSession, supabase}}){
                     console.log(userData);
                     if (adminValidator.success){
 
-                        // this fails here, i suspect i need to make a new client specifically for
-                        // working with admin
-                        // ... i might just use prisma instead, tbh
-                        const {supabaseData, supabaseError} = supabase.auth.admin.createUser({
-                            email: adminValidator.data.email,
-                            password: adminValidator.data.password,
-                            email_confirm: true
-                        });
+                        const prisma = new PrismaClient();
+                        const newUser = await prisma.users.create({
+                            data: {
+                                id: '', // schema doesn't autogen uuids, so this is currently
+                                // stopping me
+                                email: adminValidator.data.email,
+                                encrypted_password: adminValidator.data.password,
+                                Profile: {
+                                    create: {
+                                        user_role: Role.ADMIN
+                                    }
+                                }
+                            },
+                            include: {
+                                Profile: true
+                            }
+                        })
 
-                        if (supabaseError){
-                            return json({result: adminError},  {status: 500,
+                        console.log(newUser);
+
+                        if (!newUser){
+                            return json({},  {status: 500,
                             statusText: "Unable to create Account"});
 
                         }
                         else {
-                            return json({result: supabaseData.email}, {status: 201,
+                            return json({}, {status: 201,
                                 statusText: "Administrator account successfully created"});
                         }
                     }
@@ -59,7 +69,7 @@ export async function POST({request, locals:{getSession, supabase}}){
                     }
                 case Role.SUPPORT:
                     const supportValidator = adminOrSupportOrUser;
-                    supportValidator.parse(data);
+                    supportValidator.parse(userData);
 
                     if (supportValidator){
                         return json({}, {status: 201,
