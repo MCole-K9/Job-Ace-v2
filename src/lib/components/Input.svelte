@@ -3,7 +3,7 @@
     
     export let type: Input["$$prop_def"]["type"]  ;
     export let placeholder: Input["$$prop_def"]["placeholder"] = "";
-    export let value: Input["$$prop_def"]["value"];
+    export let value: Input["$$prop_def"]["value"] | undefined = undefined;
     export let name: string;
     export let label: string;
     export let error: string | undefined = undefined;
