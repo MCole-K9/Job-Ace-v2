@@ -1,37 +1,73 @@
 import {json, error} from '@sveltejs/kit';
 import {Role} from '@prisma/client';
+import { adminOrSupportOrUser, candidateOrCoach, organizationRepresntative } from '$lib/server/addUser.js';
 
 export async function GET (){
     // this will probably get all users, i suppose
 
 }
 
-export async function POST({request, locals:{getSession}}){
+export async function POST({request, locals:{getSession, supabase}}){
 
     let session = await getSession();
-    let user_type: string = "";
+    let result = await request.json();
 
-    if (session){
+    let userType: string = result.chosenRole;
+    const userData = result.userData;
+
+    // check to see if logged in
+    if (true){
         // then, check to see that they are an admin (does supabase have 
         // transactions? need to look into it)
-        let isAdmin: boolean = ((userId: string) => { 
+        /* let isAdmin: boolean = ((userId: string) => { 
             return true
-        })(session.user.id);
+        })(session.user.id); */
 
-        if (isAdmin){
-            let data = await request.json();
-            user_type = data.userType;
+        // then, check to see if they're an admin
+        if (true){
             
-            switch (user_type){
+            
+            switch (userType){
                 case Role.ADMIN:
-                    // need to validate information first
-                    
-                    return json({}, {status: 201,
-                        statusText: "Administrator account successfully created"});
+                    const adminValidator = adminOrSupportOrUser.safeParse(userData);
+
+                    console.log(userData);
+                    if (adminValidator.success){
+
+                        // this fails here, i suspect i need to make a new client specifically for
+                        // working with admin
+                        // ... i might just use prisma instead, tbh
+                        const {supabaseData, supabaseError} = supabase.auth.admin.createUser({
+                            email: adminValidator.data.email,
+                            password: adminValidator.data.password,
+                            email_confirm: true
+                        });
+
+                        if (supabaseError){
+                            return json({result: adminError},  {status: 500,
+                            statusText: "Unable to create Account"});
+
+                        }
+                        else {
+                            return json({result: supabaseData.email}, {status: 201,
+                                statusText: "Administrator account successfully created"});
+                        }
+                    }
+                    else {
+                        return json({result: adminValidator.error}, {status: 500, 
+                            statusText: "Unable to create account"});
+                    }
                 case Role.SUPPORT:
-                    
-                    return json({}, {status: 201,
-                        statusText: "Support Staff account successfully created"});
+                    const supportValidator = adminOrSupportOrUser;
+                    supportValidator.parse(data);
+
+                    if (supportValidator){
+                        return json({}, {status: 201,
+                            statusText: "Support Staff account successfully created"});
+                    }
+                    else {
+                        // return the relevant errors
+                    }    
                 case Role.ORGANIZATION_REPRESENTATIVE:
                     
                     return json({}, {status: 201,

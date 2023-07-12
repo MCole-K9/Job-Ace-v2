@@ -17,7 +17,7 @@
             <div class="flex flex-col mb-4">
                 <Label for="email">Email</Label>
                 <Input id="email" class="w-25" type="email"
-                    size="sm"/>
+                    size="sm" bind:value={email}/>
                 <Helper>Test</Helper>
             </div>
             
@@ -49,20 +49,20 @@
                 <!--Specify whether the user is part of a business already, or is creating one-->
                 <div class="mb-4">
                     <p>New User is a:</p>
-                    <Radio id="recruiter" name="orgRepresentative" bind:group={org_rep_role}>Recruiter</Radio>
-                    <Radio id="manager" name="orgRepresentative" bind:grou={org_rep_role}>Manager</Radio>
+                    <Radio id="recruiter" name="orgRepresentative" bind:group={organizationalRole}>Recruiter</Radio>
+                    <Radio id="manager" name="orgRepresentative" bind:grou={organizationalRole}>Manager</Radio>
                 </div>
     
                 <div class="flex flex-col mb-4">
                     <Label for="candidate-first-name">First Name</Label>
-                    <Input id="candidate-first-name" bind:value={first_name}
+                    <Input id="candidate-first-name" bind:value={firstName}
                         size="sm"/>
                     <Helper>Test</Helper>
                 </div>
     
                 <div class="flex flex-col mb-4">
                     <Label for="candidate-last-name">Last Name</Label>
-                    <Input id="candidate-last-name" bind:value={last_name}
+                    <Input id="candidate-last-name" bind:value={lastName}
                         size="sm"/>
                     <Helper>Test</Helper>
                 </div>
@@ -70,14 +70,14 @@
             {:else if chosen_role === Role.CAREER_COACH}
                 <div class="flex flex-col mb-4">
                     <Label for="candidate-first-name">First Name</Label>
-                    <Input id="candidate-first-name" bind:value={first_name}
+                    <Input id="candidate-first-name" bind:value={firstName}
                         size="sm"/>
                     <Helper>Test</Helper>
                 </div>
     
                 <div class="flex flex-col">
                     <Label for="candidate-last-name">Last Name</Label>
-                    <Input id="candidate-last-name" bind:value={last_name}
+                    <Input id="candidate-last-name" bind:value={lastName}
                         size="sm"/>
                     <Helper>Test</Helper>
                 </div>
@@ -85,14 +85,14 @@
             {:else if chosen_role === Role.CANDIDATE}
                 <div class="flex flex-col">
                     <Label for="candidate-first-name">First Name</Label>
-                    <Input id="candidate-first-name" bind:value={first_name}
+                    <Input id="candidate-first-name" bind:value={firstName}
                         size="sm"/>
                     <Helper>Test</Helper>
                 </div>
         
                 <div class="flex flex-col mb-4">
                     <Label for="candidate-last-name">Last Name</Label>
-                    <Input id="candidate-last-name" bind:value={last_name}
+                    <Input id="candidate-last-name" bind:value={lastName}
                         size="sm"/>
                     <Helper>Test</Helper>
                 </div>
@@ -153,9 +153,10 @@
 
     // related to the values entered by the user
     // worth looking into: whether or not it's wise 
-    let first_name: string = "";
-    let last_name: string = "";
-    let org_rep_role: string = "";
+    let email: string = "";
+    let firstName: string = "";
+    let lastName: string = "";
+    let organizationalRole: string = "";
     let password: string ="";
 
     // submission-related
@@ -167,11 +168,14 @@
         fetch('/api/admin/users', {
             method: 'POST',
             body: JSON.stringify({
-                userRole: chosen_role,
-                firstName: first_name,
-                last_name: last_name,
-                organizationRepresentativeRole: org_rep_role,
-                password: password
+                chosenRole: chosen_role,
+                userData: {
+                    email: email,
+                    firstName: firstName,
+                    lastName: lastName,
+                    organizationalRole: organizationalRole,
+                    password: password
+                }
             }),
             headers: {
                 'Content-Type': 'application/json'
