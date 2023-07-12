@@ -12,7 +12,7 @@ export const load = (async () => {
 
 
 export const actions: Actions = {
-    default: async ({request, locals}) => {
+    default: async ({request, locals, url}) => {
 
         const form = await superValidate(request, email_registration_schema);
 
@@ -29,7 +29,7 @@ export const actions: Actions = {
                     last_name: form.data.last_name,
                     user_role: form.data.user_role
                 },
-                emailRedirectTo: "http://127.0.0.1:5173/post-verification"
+                emailRedirectTo: `${url.origin}/post-verification`
             }
         })
       
