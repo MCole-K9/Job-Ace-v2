@@ -2,19 +2,27 @@
     import type { PageData } from './$types';
     import { superForm } from 'sveltekit-superforms/client';
     import Input from "$components/Input.svelte";
-    import {Button} from "flowbite-svelte"
+    import {Alert, Button} from "flowbite-svelte"
 	import { page } from '$app/stores';
+	import type { email_registration_schema } from '$lib/schemas';
     
     
     export let data: PageData;
 
-    const {form, errors, enhance} = superForm(data.form);
+    const {form, errors, enhance, message} = superForm<typeof email_registration_schema, string>(data.form);
 
     $form.user_role = $page.url.searchParams.get('role') as typeof $form.user_role ?? $form.user_role;
 
 </script>
 
 <form class="flex flex-col space-y-2 mx-auto my-12 max-w-md" method="POST" use:enhance>
+
+    {#if $message}
+        <Alert color={ $page.status === 200 ? "green" : "red"}>
+            <span class="font-medium">{$message}</span> 
+        </Alert>
+    {/if}
+    
     
     <input type="hidden"  name="user_role" bind:value={$form.user_role} />
     

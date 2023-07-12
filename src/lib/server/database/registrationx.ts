@@ -7,7 +7,7 @@ import type { z } from "zod";
 export const register_x_prisma =  new PrismaClient().$extends({
     model: {
         profile: {
-            async create_profile(user_id: string, data: z.infer<typeof email_registration_schema>){
+            async create_profile(user_id: string, data: Omit<z.infer<typeof email_registration_schema>, "password" | "confirm_password" >){
 
                 return prisma.$transaction([
                      prisma.profile.create({
