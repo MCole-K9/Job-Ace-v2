@@ -2,6 +2,9 @@ import {json, error} from '@sveltejs/kit';
 import {Role} from '@prisma/client';
 import { adminOrSupportOrUser, candidateOrCoach, organizationRepresntative } from '$lib/server/addUser.js';
 import {PrismaClient} from '@prisma/client';
+import { createClient } from '@supabase/supabase-js';
+import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
+import { PUBLIC_SUPABASE_URL } from '$env/static/public';
 
 export async function GET (){
     // this will probably get all users, i suppose
@@ -24,6 +27,15 @@ export async function POST({request, locals:{getSession, supabase}}){
 
         // then, check to see if they're an admin
         if (true){
+
+            const supabaseClient = createClient(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, 
+                {
+                    auth: {
+                    autoRefreshToken: false,
+                    persistSession: false
+                    }
+                });
+            const adminClient = supabaseClient.auth.admin;
             
             
             switch (userType){
@@ -33,33 +45,21 @@ export async function POST({request, locals:{getSession, supabase}}){
                     console.log(userData);
                     if (adminValidator.success){
 
-                        const prisma = new PrismaClient();
-                        const newUser = await prisma.users.create({
-                            data: {
-                                id: '', // schema doesn't autogen uuids, so this is currently
-                                // stopping me
-                                email: adminValidator.data.email,
-                                encrypted_password: adminValidator.data.password,
-                                Profile: {
-                                    create: {
-                                        user_role: Role.ADMIN
-                                    }
-                                }
-                            },
-                            include: {
-                                Profile: true
-                            }
+                        const { data, error } = await adminClient.createUser({
+                            email: adminValidator.data.email,
+                            password: adminValidator.data.password,
+                            email_confirm: true
                         })
 
-                        console.log(newUser);
+                        console.log(data);
 
-                        if (!newUser){
-                            return json({},  {status: 500,
+                        if (error){
+                            return json(error,  {status: 500,
                             statusText: "Unable to create Account"});
 
                         }
                         else {
-                            return json({}, {status: 201,
+                            return json(data, {status: 201,
                                 statusText: "Administrator account successfully created"});
                         }
                     }
