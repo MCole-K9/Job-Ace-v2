@@ -28,7 +28,7 @@
 </script>
 
 <Navbar let:hidden let:toggle>
-	<NavBrand  >
+	<NavBrand   >
         <NavHamburger on:click={()=>{ drawerHidden = false}} />
 		<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
 			Job Ace
