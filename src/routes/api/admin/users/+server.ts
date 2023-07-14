@@ -124,8 +124,48 @@ export async function POST({request, locals:{getSession, supabase}}){
                 
                 case Role.ORGANIZATION_REPRESENTATIVE:
                     
-                    return json({}, {status: 201,
-                        statusText: "Organization Representative account successfully created"});
+                    const repValidator = organizationRepresntative.safeParse(userData);
+
+                    if (repValidator.success){
+                    
+                        const { data, error } = await adminClient.createUser({
+                            email: repValidator.data.email,
+                            password: repValidator.data.password,
+                            email_confirm: true
+                        })
+
+                        let repProfile;
+
+                        if (data.user){
+                            const prisma = new PrismaClient();
+                            repProfile = await prisma.profile.create({
+                                data: {
+                                    user_role: Role.CANDIDATE,
+                                    first_name: repValidator.data.firstName,
+                                    last_name: repValidator.data.lastName,
+                                    users: {
+                                        connect: {
+                                            id: data.user.id
+                                        }
+                                    }
+                                }
+                            })
+                        }
+
+                        if (error){
+                            return json(error,  {status: 500,
+                            statusText: "Unable to create Account"});
+
+                        }
+                        else {
+                            return json({ userData: data, profileData: repProfile}, {status: 201,
+                                statusText: "Career Coach account successfully created"});
+                        }
+                    }
+                    else {
+                        return json({result: repValidator.error}, {status: 500, 
+                            statusText: "Unable to create account"});
+                    }
                 
                 case Role.CAREER_COACH:
 
@@ -164,7 +204,7 @@ export async function POST({request, locals:{getSession, supabase}}){
                         }
                         else {
                             return json({ userData: data, profileData: coachProfile}, {status: 201,
-                                statusText: "Career Coach account successfully created"});
+                                statusText: "Org Rep account successfully created"});
                         }
                     }
                     else {

@@ -14,10 +14,10 @@ export const adminOrSupportOrUser = z.object({
     password: z.string().min(8)
 })
 
+// this the same as candidateOrCoach and i'll probably rename it later
 export const organizationRepresntative = z.object({
     email: z.string().trim().email(),
     password: z.string().min(8),
     firstName: z.string().trim(),
-    lastName: z.string().trim(),
-    organizationalRole: z.enum([OrganizationRole.RECRUITER, OrganizationRole.MANAGING_REPRESENTATIVE])
+    lastName: z.string().trim()
 })
