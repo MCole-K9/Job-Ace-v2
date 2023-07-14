@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import { sineIn } from 'svelte/easing';
 	import { Avatar, Button, Drawer, DropdownHeader } from 'flowbite-svelte';
-	import Sidebar from './Sidebar.svelte';
+	import {Sidebar} from './Sidebar';
 	import {
 		Navbar,
 		NavBrand,
