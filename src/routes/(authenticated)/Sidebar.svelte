@@ -16,8 +16,6 @@
         <!-- Layout Links -->
 
         {#if $page.data.layout_links}
-
-          
           {#each $page.data.layout_links as link}
             {#if link.children}
               <SidebarDropdownWrapper label={link.label}>
@@ -28,11 +26,10 @@
                   <SidebarDropdownItem href={child.href} label={child.label} />
                 {/each}
               </SidebarDropdownWrapper>
-
             {:else}
               <SidebarItem href={link.href} label={link.label}>
                 <svelte:fragment slot="icon">
-                  <link.icon />
+                  <svelte:component this={link.icon} />
                 </svelte:fragment>
               </SidebarItem>
             {/if}
