@@ -3,6 +3,6 @@ import type { SvelteComponent } from "svelte/internal";
 export type Link = {
     href?: string ;
     label: string;
-    icon?: SvelteComponent | string;
+    icon?: any;
     children?: Link[];
 }

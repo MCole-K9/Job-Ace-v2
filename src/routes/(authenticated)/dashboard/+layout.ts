@@ -1,14 +1,6 @@
-import type { Link } from '$lib/types';
 import type { LayoutLoad } from './$types';
+import layout_links from './layout_links';
 
-
-const layout_links: Link[] = [
-    {
-        href: "/test",
-        label: "Test",
-    }
-        
-]
 export const load = (async () => {
 
 
