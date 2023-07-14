@@ -1,5 +1,5 @@
-import type { SvelteComponent } from "svelte/internal";
 
+// Need to tidy up this type, i.e separate the parent and child types
 export type Link = {
     href?: string ;
     label: string;
