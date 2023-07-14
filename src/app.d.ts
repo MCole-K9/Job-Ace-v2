@@ -1,6 +1,7 @@
 // src/app.d.ts
 
-import { SupabaseClient, Session } from '@supabase/supabase-js'
+import type { SupabaseClient, Session } from '@supabase/supabase-js'
+import { Link } from './types'
 
 declare global {
   namespace App {
@@ -10,6 +11,7 @@ declare global {
     }
     interface PageData {
       session: Session | null
+      layout_links: Link[] | null
     }
     // interface Error {}
     // interface Platform {}
