@@ -37,12 +37,10 @@ export async function POST({request, locals:{getSession, supabase}}){
                 });
             const adminClient = supabaseClient.auth.admin;
             
-            
             switch (userType){
                 case Role.ADMIN:
                     const adminValidator = adminOrSupportOrUser.safeParse(userData);
 
-                    console.log(userData);
                     if (adminValidator.success){
 
                         const { data, error } = await adminClient.createUser({
@@ -50,6 +48,26 @@ export async function POST({request, locals:{getSession, supabase}}){
                             password: adminValidator.data.password,
                             email_confirm: true
                         })
+
+                        let adminProfile;
+
+                        if (data.user){
+                            const prisma = new PrismaClient();
+                            adminProfile = await prisma.profile.create({
+                                data: {
+                                    user_role: Role.ADMIN,
+                                    users: {
+                                        connect: {
+                                            id: data.user.id
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                        
+
+
+                        // now the job is to create the relevant profile role etc. etc.
 
                         console.log(data);
 
@@ -59,7 +77,7 @@ export async function POST({request, locals:{getSession, supabase}}){
 
                         }
                         else {
-                            return json(data, {status: 201,
+                            return json({ userData: data, profileData: adminProfile}, {status: 201,
                                 statusText: "Administrator account successfully created"});
                         }
                     }
