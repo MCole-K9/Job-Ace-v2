@@ -23,7 +23,7 @@
             
             <div class="flex flex-col mb-4">
                 <Label for="password">Password</Label>
-                <Input id="password" type={password_type} bind:value={password}
+                <Input id="password" type={passwordType} bind:value={password}
                     size="sm"/>
                 <Helper>Test</Helper>
                 <Toggle on:change={togglePassword}>Show Password</Toggle>
@@ -31,27 +31,21 @@
         
             <div class="flex flex-col mb-4">
                 <Label for="role" class="text">Select the New User's Role</Label>
-                <Select items={roles} bind:value={chosen_role} 
+                <Select items={roles} bind:value={chosenRole} 
                     size="sm"/>
             </div>
         
             <!--This entire if block is technically brittle, i am aware-->
-            {#if chosen_role === Role.ADMIN}
+            {#if chosenRole === Role.ADMIN}
                 <!--This doesn't need anything, unless for some reason it's necessary to 
                 identify admins by name-->
-            {:else if chosen_role === Role.SUPPORT}
+            {:else if chosenRole === Role.SUPPORT}
                 <!--This doesn't need anything, unless for some reason it's necessary to 
                 identify admins by name-->
         
-            {:else if chosen_role === Role.USER}
+            {:else if chosenRole === Role.USER}
                 <!--Why is there a generic user role?-->
-            {:else if chosen_role === Role.ORGANIZATION_REPRESENTATIVE}
-                <!--Specify whether the user is part of a business already, or is creating one-->
-                <div class="mb-4">
-                    <p>New User is a:</p>
-                    <Radio id="recruiter" name="orgRepresentative" bind:group={organizationalRole}>Recruiter</Radio>
-                    <Radio id="manager" name="orgRepresentative" bind:grou={organizationalRole}>Manager</Radio>
-                </div>
+            {:else if chosenRole === Role.ORGANIZATION_REPRESENTATIVE}
     
                 <div class="flex flex-col mb-4">
                     <Label for="candidate-first-name">First Name</Label>
@@ -67,7 +61,7 @@
                     <Helper>Test</Helper>
                 </div>
     
-            {:else if chosen_role === Role.CAREER_COACH}
+            {:else if chosenRole === Role.CAREER_COACH}
                 <div class="flex flex-col mb-4">
                     <Label for="candidate-first-name">First Name</Label>
                     <Input id="candidate-first-name" bind:value={firstName}
@@ -82,7 +76,7 @@
                     <Helper>Test</Helper>
                 </div>
         
-            {:else if chosen_role === Role.CANDIDATE}
+            {:else if chosenRole === Role.CANDIDATE}
                 <div class="flex flex-col">
                     <Label for="candidate-first-name">First Name</Label>
                     <Input id="candidate-first-name" bind:value={firstName}
@@ -103,36 +97,41 @@
         </div>
     </div>
 
+    <!--User Feedback section-->
     <div class="flex-none bg-slate-300 shrink-0 h-200
         md:w-72
         lg:w-84 h-15"
         id="resultViewer">
-        {#if submission_result === 'SUCCESS'}
+        {#if submissionResult === 'SUCCESS'}
             <Alert 
-            class="w-full
-            bg-green-400">
+            class="w-full text break-all
+            bg-green-400 font-bold">
                 User Succesfully Created
             </Alert>
 
-            <div>
-                <p>Email: </p>
-                <p>Role: </p>
-                <p>First Name:</p>
-                <p>Last Name:</p>
-            </div>
-        {:else if submission_result === 'FAIL'}
-            <Alert>Cannot Find Route: (Information)</Alert>
-        {:else if submission_result === 'UNINITIATED'}
+            <ul class="mx-8">
+                <li>Email: {submissionData.email}</li>
+                <li>Role: {submissionData.role}</li>
+                <li>First Name: {submissionData.firstName}</li>
+                <li>Last Name: {submissionData.lastName}</li>
+            </ul>
+        {:else if submissionResult === 'FAIL'}
+            <Alert>Error</Alert>
+            <p>Cannot Complete your Request</p>
+            <ul>
+
+            </ul>
+        {:else if submissionResult === 'UNINITIATED'}
             <Alert
             class="w-full text break-all 
-            bg-green-400">
-                I'm just here to fill spacessssssssssssssssssssssssssssssssssssssssssssssssssssssss
+            bg-green-400 font-bold">
+                Create a User
             </Alert>
 
-            <p 
-            class="mx-8">
-                created things will show up here.
-            </p>
+            <ul class="mx-8 list-disc">
+                <li class="text">created things will show up here.</li>
+                <li class="text">they're cool</li>
+            </ul>
         {/if}
     </div>
 </div>
@@ -141,26 +140,33 @@
 
 <script lang="ts">
     import {Button, Input, Label, Heading, Toggle,
-            Select, Radio, Alert, Helper
+            Select, Alert, Helper
             } from 'flowbite-svelte';
     import {Role} from '@prisma/client';
     export let data;
+
+    type MinimalUser = {
+        firstName: string,
+        lastName: string,
+        role: string,
+        email: string
+    }
     
     // related to changing options depending on role
     let roles: {name: string, value: string}[] = data.roles;
-    let password_type: 'password' | 'text' = "password";
-    let chosen_role: string;
+    let passwordType: 'password' | 'text' = "password";
+    let chosenRole: string;
 
     // related to the values entered by the user
     // worth looking into: whether or not it's wise 
     let email: string = "";
     let firstName: string = "";
     let lastName: string = "";
-    let organizationalRole: string = "";
     let password: string ="";
 
     // submission-related
-    let submission_result: 'SUCCESS' | 'FAIL' | 'UNINITIATED' = 'UNINITIATED';
+    let submissionResult: 'SUCCESS' | 'FAIL' | 'UNINITIATED' = 'UNINITIATED';
+    let submissionData: MinimalUser = {} as MinimalUser;
 
 
     function submitNewUser(){
@@ -168,13 +174,12 @@
         fetch('/api/admin/users', {
             method: 'POST',
             body: JSON.stringify({
-                chosenRole: chosen_role,
                 userData: {
                     email: email,
                     firstName: firstName,
                     lastName: lastName,
-                    organizationalRole: organizationalRole,
-                    password: password
+                    password: password,
+                    role: chosenRole
                 }
             }),
             headers: {
@@ -182,31 +187,41 @@
             }})
         .then((response) => {
             if (response.status === 201){
-                return response.json();
-
-            }
-            else if (response.status === 404){
+                submissionResult = 'SUCCESS';
                 return response.json();
             }
             else if (response.status === 500){
-                
-                return response.json();
+                submissionResult = 'FAIL';                
+                return new Promise((resolve, reject) => {
+                    reject(response);
+                });
             }
+        })
+        .then((data) => {
+            console.log(data);
+
+            submissionData.email = data.email;
+            submissionData.firstName = data.first_name;
+            submissionData.lastName = data.last_name;
+            submissionData.role = data.user_role;
+        }, 
+        (failResult)=> {
+            console.log(failResult);
         })
     }
     
     function togglePassword(){
-        if (password_type === "password"){
-            password_type = "text";
+        if (passwordType === "password"){
+            passwordType = "text";
         }
         else {
-            password_type = "password";
+            passwordType = "password";
         }
 
     }
 
     function checkPresence(){
-        switch (chosen_role){
+        switch (chosenRole){
             case Role.ADMIN:
 
         }
