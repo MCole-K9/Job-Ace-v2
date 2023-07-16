@@ -1,7 +1,7 @@
 import {json, error} from '@sveltejs/kit';
 import {Role} from '@prisma/client';
 import { minimalUserValidator } from '$lib/server/addUser.js';
-import {PrismaClient} from '@prisma/client';
+import { prisma } from '$lib/server/database.js';
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
@@ -48,7 +48,6 @@ export async function POST({request, locals:{getSession}}){
 
                 let profileData;
 
-                const prisma = new PrismaClient();
                 if (userData.user){
                     profileData = await prisma.profile.create({
                         data: {
@@ -63,7 +62,6 @@ export async function POST({request, locals:{getSession}}){
                         }
                     })
                 }
-                prisma.$disconnect();
 
                 if (error){
                     return json(error,  {status: 500,

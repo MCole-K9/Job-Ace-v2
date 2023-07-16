@@ -110,21 +110,22 @@
             </Alert>
 
             <ul class="mx-8">
-                <li>Email: {submissionData.email}</li>
-                <li>Role: {submissionData.role}</li>
-                <li>First Name: {submissionData.firstName}</li>
-                <li>Last Name: {submissionData.lastName}</li>
+                <li>Email: {returnedData.email}</li>
+                <li>Role: {returnedData.role}</li>
+                <li>First Name: {returnedData.firstName}</li>
+                <li>Last Name: {returnedData.lastName}</li>
             </ul>
         {:else if submissionResult === 'FAIL'}
             <Alert>Error</Alert>
-            <p>Cannot Complete your Request</p>
+            <p class="mx-8">Cannot Complete your Request: Error Code</p>
             <ul>
-
+                {#each errorMessages as message}
+                    <li></li>
+                {/each}
             </ul>
         {:else if submissionResult === 'UNINITIATED'}
             <Alert
-            class="w-full text break-all 
-            bg-green-400 font-bold">
+            class="w-full text break-all font-bold">
                 Create a User
             </Alert>
 
@@ -132,6 +133,8 @@
                 <li class="text">created things will show up here.</li>
                 <li class="text">they're cool</li>
             </ul>
+        {:else if submissionResult === 'RESET'}
+            <p>You may add another user, or do something else</p>
         {/if}
     </div>
 </div>
@@ -143,6 +146,7 @@
             Select, Alert, Helper
             } from 'flowbite-svelte';
     import {Role} from '@prisma/client';
+	import { AuthApiError } from '@supabase/supabase-js';
     export let data;
 
     type MinimalUser = {
@@ -165,8 +169,9 @@
     let password: string ="";
 
     // submission-related
-    let submissionResult: 'SUCCESS' | 'FAIL' | 'UNINITIATED' = 'UNINITIATED';
-    let submissionData: MinimalUser = {} as MinimalUser;
+    let submissionResult: 'SUCCESS' | 'FAIL' | 'UNINITIATED' | 'RESET' = 'UNINITIATED';
+    let returnedData: MinimalUser = {} as MinimalUser;
+    let errorMessages: string[] = [];
 
 
     function submitNewUser(){
@@ -185,28 +190,36 @@
             headers: {
                 'Content-Type': 'application/json'
             }})
-        .then((response) => {
+        .then((response: Response) => {
             if (response.status === 201){
                 submissionResult = 'SUCCESS';
                 return response.json();
             }
             else if (response.status === 500){
-                submissionResult = 'FAIL';                
+                submissionResult = 'FAIL';
+                // ↓ this feels morally wrong somehow, but: TESTING
                 return new Promise((resolve, reject) => {
-                    reject(response);
+                    reject(response.json());
                 });
             }
         })
         .then((data) => {
-            console.log(data);
+            returnedData.email = data.email;
+            returnedData.firstName = data.first_name;
+            returnedData.lastName = data.last_name;
+            returnedData.role = data.user_role;
 
-            submissionData.email = data.email;
-            submissionData.firstName = data.first_name;
-            submissionData.lastName = data.last_name;
-            submissionData.role = data.user_role;
+            setTimeout(() => submissionResult = 'RESET', 5000);
         }, 
         (failResult)=> {
             console.log(failResult);
+
+            // the types of error i need to check for are:
+            // * ZodError (500) (this shouldn't really matter for the frontend, since i'll also frontend validate)
+            // * AuthApiError (500)
+            // * Prisma Error (maybe?) (500)
+            // * General Server Error on the chance that it's unreachable (404)
+
         })
     }
     
