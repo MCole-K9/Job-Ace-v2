@@ -124,7 +124,7 @@
         md:w-72
         lg:w-84 h-15"
         id="resultViewer">
-        {#if submissionResult === 'SUCCESS'}
+        {#if false}
             <Alert 
             class="w-full text break-all
             bg-green-400 font-bold">
@@ -137,15 +137,11 @@
                 <li>First Name: {returnedData.firstName}</li>
                 <li>Last Name: {returnedData.lastName}</li>
             </ul>
-        {:else if submissionResult === 'FAIL'}
+        {:else if false}
             <Alert>Error</Alert>
-            <p class="mx-8">Cannot Complete your Request: Error Code</p>
-            <ul>
-                {#each errorMessages as message}
-                    <li></li>
-                {/each}
-            </ul>
-        {:else if submissionResult === 'UNINITIATED'}
+            <p class="mx-8"></p>
+
+        {:else if true}
             <Alert
             class="w-full text break-all font-bold">
                 Create a User
@@ -155,7 +151,7 @@
                 <li class="text">created things will show up here.</li>
                 <li class="text">they're cool</li>
             </ul>
-        {:else if submissionResult === 'RESET'}
+        {:else if false}
             <p>You may add another user, or do something else</p>
         {/if}
     </div>
@@ -168,13 +164,12 @@
             Select, Alert, Helper
             } from 'flowbite-svelte';
     import {Role} from '@prisma/client';
-	import type { PageData, ActionData } from './$types.js';
+	import type { PageData } from './$types.js';
     import {superForm} from "sveltekit-superforms/client";
 
     export let data: PageData;
 
     const {form, errors, enhance} = superForm(data.form);
-
 
     type MinimalUser = {
         firstName: string,
@@ -188,9 +183,7 @@
     let passwordType: 'password' | 'text' = "password";
 
     // submission-related
-    let submissionResult: 'SUCCESS' | 'FAIL' | 'UNINITIATED' | 'RESET' = 'UNINITIATED';
     let returnedData: MinimalUser = {} as MinimalUser;
-    let errorMessages: string[] = [];
 
     function togglePassword(){
         if (passwordType === "password"){

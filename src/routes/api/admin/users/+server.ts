@@ -74,6 +74,8 @@ export async function POST({request, locals:{getSession}}){
                 }
             }
             else {
+                // technically this vaidates on the frontend, which means i don't 
+                // need to return the schema and its errors, but i'm keeping this
                 return json({result: minimalUser.error}, {status: 500, 
                     statusText: "Unable to create account"});
             }

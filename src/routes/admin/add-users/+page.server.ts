@@ -1,10 +1,12 @@
 import {Role} from '@prisma/client';
 import {fail, redirect} from '@sveltejs/kit';
-import {superValidate} from 'sveltekit-superforms/server'
+import {superValidate, message} from 'sveltekit-superforms/server'
 import { minimalUserValidator } from '$lib/server/addUser.js';
+import {page} from '$app/stores'
 
-export async function load (event) {
+export async function load ({request, locals: {getSession}}) {
     let user_roles: string[] = [];
+
 
     // i'll implement this when login is working
     // let session = await getSession();
@@ -13,7 +15,7 @@ export async function load (event) {
     //     throw redirect(307, "login required");
     // }
 
-    const form = await superValidate(event, minimalUserValidator);
+    const form = await superValidate(request, minimalUserValidator);
 
 
     (() => {
@@ -35,12 +37,10 @@ export async function load (event) {
 }
 
 export const actions = {
-    default: async (event) => {
-        const form = await superValidate(event, minimalUserValidator);
+    default: async ({request, fetch}) => {
+        const form = await superValidate(request, minimalUserValidator);
 
-        console.log(form);
-
-        async function Test() {
+        if (form.valid){
             const response = await fetch('/api/admin/users', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -55,15 +55,20 @@ export const actions = {
                 headers: {
                     'Content-Type': 'application/json'
                 }});
-    
-            // only error that matters here is a ZodError, need to look into superforms now
-        }
+            console.log(response.status);
+            const userData = await response.json();
+            console.log(userData);
+            
+            if (response.status === 201){
+                return { form}
+            }
+            else if (response.status === 500){
+                return { form}
+            }
 
-        if (form.valid){
-            return { form };
         }   
         else {
-            return fail(400, { form });
+            return fail(400, {form});
         }
     }
 }
