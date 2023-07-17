@@ -14,86 +14,108 @@
     <div class="bg-slate-200 px-8 py-4 flex-auto
         lg:w-40px">
         <div class="flex flex-col max-w-fit">
-            <div class="flex flex-col mb-4">
-                <Label for="email">Email</Label>
-                <Input id="email" class="w-25" type="email"
-                    size="sm" bind:value={email}/>
-                <Helper>Test</Helper>
-            </div>
+            <form method="POST" use:enhance>
             
-            <div class="flex flex-col mb-4">
-                <Label for="password">Password</Label>
-                <Input id="password" type={passwordType} bind:value={password}
-                    size="sm"/>
-                <Helper>Test</Helper>
-                <Toggle on:change={togglePassword}>Show Password</Toggle>
-            </div>
-        
-            <div class="flex flex-col mb-4">
-                <Label for="role" class="text">Select the New User's Role</Label>
-                <Select items={roles} bind:value={chosenRole} 
-                    size="sm"/>
-            </div>
-        
-            <!--This entire if block is technically brittle, i am aware-->
-            {#if chosenRole === Role.ADMIN}
-                <!--This doesn't need anything, unless for some reason it's necessary to 
-                identify admins by name-->
-            {:else if chosenRole === Role.SUPPORT}
-                <!--This doesn't need anything, unless for some reason it's necessary to 
-                identify admins by name-->
-        
-            {:else if chosenRole === Role.USER}
-                <!--Why is there a generic user role?-->
-            {:else if chosenRole === Role.ORGANIZATION_REPRESENTATIVE}
-    
                 <div class="flex flex-col mb-4">
-                    <Label for="candidate-first-name">First Name</Label>
-                    <Input id="candidate-first-name" bind:value={firstName}
-                        size="sm"/>
-                    <Helper>Test</Helper>
+                    <Label for="email">Email</Label>
+                    <Input id="email" class="w-25" type="email"
+                        size="sm" name="email" bind:value={$form.email}/>
+                    {#if $errors.email}
+                        <Helper>{$errors.email}</Helper>
+                    {/if}
                 </div>
-    
+                
                 <div class="flex flex-col mb-4">
-                    <Label for="candidate-last-name">Last Name</Label>
-                    <Input id="candidate-last-name" bind:value={lastName}
-                        size="sm"/>
-                    <Helper>Test</Helper>
+                    <Label for="password">Password</Label>
+                    <Input id="password" type={passwordType} name="password"
+                        bind:value={$form.password}/>
+                    {#if $errors.password}
+                        <Helper>{$errors.password}</Helper>
+                    {/if}
+                    <Toggle on:change={togglePassword}>Show Password</Toggle>
                 </div>
-    
-            {:else if chosenRole === Role.CAREER_COACH}
+            
                 <div class="flex flex-col mb-4">
-                    <Label for="candidate-first-name">First Name</Label>
-                    <Input id="candidate-first-name" bind:value={firstName}
-                        size="sm"/>
-                    <Helper>Test</Helper>
+                    <Label for="role" class="text">Select the New User's Role</Label>
+                    {#if $errors.role}
+                        <Helper>{$errors.role}</Helper>
+                    {/if}
+                    <Select items={roles} bind:value={$form.role}
+                        name="role" size="sm"/>
                 </div>
-    
-                <div class="flex flex-col">
-                    <Label for="candidate-last-name">Last Name</Label>
-                    <Input id="candidate-last-name" bind:value={lastName}
-                        size="sm"/>
-                    <Helper>Test</Helper>
-                </div>
+            
+                <!--This entire if block is technically brittle, i am aware-->
+                {#if $form.role === Role.ADMIN}
+                    <!--This doesn't need anything, unless for some reason it's necessary to 
+                    identify admins by name-->
+                {:else if $form.role === Role.SUPPORT}
+                    <!--This doesn't need anything, unless for some reason it's necessary to 
+                    identify admins by name-->
+            
+                {:else if $form.role === Role.USER}
+                    <!--Why is there a generic user role?-->
+                {:else if $form.role === Role.ORGANIZATION_REPRESENTATIVE}
         
-            {:else if chosenRole === Role.CANDIDATE}
-                <div class="flex flex-col">
-                    <Label for="candidate-first-name">First Name</Label>
-                    <Input id="candidate-first-name" bind:value={firstName}
-                        size="sm"/>
-                    <Helper>Test</Helper>
-                </div>
+                    <div class="flex flex-col mb-4">
+                        <Label for="candidate-first-name">First Name</Label>
+                        <Input id="candidate-first-name" name="candidate-first-name"
+                            size="sm" bind:value={$form.firstName}/>
+                        {#if $errors.firstName}
+                            <Helper>{$errors.firstName}</Helper>
+                        {/if}
+                    </div>
         
-                <div class="flex flex-col mb-4">
-                    <Label for="candidate-last-name">Last Name</Label>
-                    <Input id="candidate-last-name" bind:value={lastName}
-                        size="sm"/>
-                    <Helper>Test</Helper>
-                </div>
-            {/if}
+                    <div class="flex flex-col mb-4">
+                        <Label for="candidate-last-name">Last Name</Label>
+                        <Input id="candidate-last-name" name="candidate-last-name"
+                            size="sm" bind:value={$form.lastName}/>
+                        {#if $errors.lastName}
+                            <Helper>{$errors.lastName}</Helper>
+                        {/if}
+                    </div>
         
-            <Button on:click={submitNewUser} type="submit" color="blue" class="mt-4">Create New User</Button>
-    
+                {:else if $form.role === Role.CAREER_COACH}
+                    <div class="flex flex-col mb-4">
+                        <Label for="candidate-first-name">First Name</Label>
+                        <Input id="candidate-first-name"
+                            size="sm" bind:value={$form.firstName}/>
+                        {#if $errors.firstName}
+                            <Helper>{$errors.firstName}</Helper>
+                        {/if}
+                    </div>
+        
+                    <div class="flex flex-col">
+                        <Label for="candidate-last-name">Last Name</Label>
+                        <Input id="candidate-last-name" bind:value={$form.lastName}
+                            size="sm"/>
+                        {#if $errors.lastName}
+                            <Helper>{$errors.lastName}</Helper>
+                        {/if}
+                    </div>
+            
+                {:else if $form.role === Role.CANDIDATE}
+                    <div class="flex flex-col">
+                        <Label for="candidate-first-name">First Name</Label>
+                        <Input id="candidate-first-name" bind:value={$form.firstName}
+                            size="sm" />
+                        {#if $errors.firstName}
+                            <Helper>{$errors.firstName}</Helper>
+                        {/if}
+                    </div>
+            
+                    <div class="flex flex-col mb-4">
+                        <Label for="candidate-last-name">Last Name</Label>
+                        <Input id="candidate-last-name" bind:value={$form.lastName}
+                            size="sm"/>
+                        {#if $errors.lastName}
+                            <Helper>{$errors.lastName}</Helper>
+                        {/if}
+                    </div>
+                {/if}
+            
+                <Button type="submit" color="blue" class="mt-4">Create New User</Button>
+            
+            </form>
         </div>
     </div>
 
@@ -146,8 +168,13 @@
             Select, Alert, Helper
             } from 'flowbite-svelte';
     import {Role} from '@prisma/client';
-	import { AuthApiError } from '@supabase/supabase-js';
-    export let data;
+	import type { PageData, ActionData } from './$types.js';
+    import {superForm} from "sveltekit-superforms/client";
+
+    export let data: PageData;
+
+    const {form, errors, enhance} = superForm(data.form);
+
 
     type MinimalUser = {
         firstName: string,
@@ -159,70 +186,12 @@
     // related to changing options depending on role
     let roles: {name: string, value: string}[] = data.roles;
     let passwordType: 'password' | 'text' = "password";
-    let chosenRole: string;
-
-    // related to the values entered by the user
-    // worth looking into: whether or not it's wise 
-    let email: string = "";
-    let firstName: string = "";
-    let lastName: string = "";
-    let password: string ="";
 
     // submission-related
     let submissionResult: 'SUCCESS' | 'FAIL' | 'UNINITIATED' | 'RESET' = 'UNINITIATED';
     let returnedData: MinimalUser = {} as MinimalUser;
     let errorMessages: string[] = [];
 
-
-    function submitNewUser(){
-        // validate for presence here
-        fetch('/api/admin/users', {
-            method: 'POST',
-            body: JSON.stringify({
-                userData: {
-                    email: email,
-                    firstName: firstName,
-                    lastName: lastName,
-                    password: password,
-                    role: chosenRole
-                }
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            }})
-        .then((response: Response) => {
-            if (response.status === 201){
-                submissionResult = 'SUCCESS';
-                return response.json();
-            }
-            else if (response.status === 500){
-                submissionResult = 'FAIL';
-                // ↓ this feels morally wrong somehow, but: TESTING
-                return new Promise((resolve, reject) => {
-                    reject(response.json());
-                });
-            }
-        })
-        .then((data) => {
-            returnedData.email = data.email;
-            returnedData.firstName = data.first_name;
-            returnedData.lastName = data.last_name;
-            returnedData.role = data.user_role;
-
-            setTimeout(() => submissionResult = 'RESET', 5000);
-        }, 
-        (failResult)=> {
-            console.log(failResult);
-
-            // the types of error i need to check for are:
-            // * ZodError (500) (this shouldn't really matter for the frontend, since i'll also frontend validate)
-            // * AuthApiError (500)
-            // * Prisma Error (maybe?) (500)
-            // * General Server Error on the chance that it's unreachable (404)
-
-        })
-    }
-    
     function togglePassword(){
         if (passwordType === "password"){
             passwordType = "text";
@@ -231,13 +200,6 @@
             passwordType = "password";
         }
 
-    }
-
-    function checkPresence(){
-        switch (chosenRole){
-            case Role.ADMIN:
-
-        }
     }
 
 </script>
