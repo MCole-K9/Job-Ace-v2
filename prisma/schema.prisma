@@ -334,6 +334,7 @@ model Organization {
   address    String?
   is_visible Boolean?
   state      String?
+  org_reps   OrganizationRepresentative[]
 
   @@schema("public")
 }
@@ -349,7 +350,8 @@ model OrganizationRepresentative {
   is_visible Boolean?
   JobPosting JobPosting[]
   users      users        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
+  org_id     BigInt?      
+  Organization Organization? @relation(fields: [org_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   @@schema("public")
 }
 
