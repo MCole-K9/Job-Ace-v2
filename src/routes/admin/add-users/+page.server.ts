@@ -1,20 +1,20 @@
 import {Role} from '@prisma/client';
 import {fail, redirect} from '@sveltejs/kit';
 import {superValidate, message} from 'sveltekit-superforms/server'
-import { minimalUserValidator } from '$lib/server/addUser.js';
+import { minimalUserSchema } from '$lib/schemas/index';
 
 export async function load ({request, locals: {getSession}}) {
     let user_roles: string[] = [];
 
 
     // i'll implement this when login is working
-    // let session = await getSession();
-    // if (!session){
+    let session = await getSession();
+    if (!session){
         
-    //     throw redirect(307, "login required");
-    // }
+        throw redirect(307, '/login');
+    }
 
-    const form = await superValidate(request, minimalUserValidator);
+    const form = await superValidate(request, minimalUserSchema);
 
     (() => {
         Object.values(Role).forEach((value) => {
@@ -36,7 +36,7 @@ export async function load ({request, locals: {getSession}}) {
 
 export const actions = {
     default: async ({request, fetch}) => {
-        const form = await superValidate(request, minimalUserValidator);
+        const form = await superValidate(request, minimalUserSchema);
 
         let userData;
 

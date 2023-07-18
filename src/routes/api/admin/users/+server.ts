@@ -1,7 +1,7 @@
 import {json, error} from '@sveltejs/kit';
 import {Role} from '@prisma/client';
-import { minimalUserValidator } from '$lib/server/addUser.js';
-import { prisma } from '$lib/server/database.js';
+import { minimalUserSchema } from '$lib/schemas/admin-userSchemas.js';
+import prisma from '$lib/server/database/index.js'
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
@@ -36,7 +36,7 @@ export async function POST({request, locals:{getSession}}){
                 });
             const adminClient = supabaseClient.auth.admin;
             
-            const minimalUser = minimalUserValidator.safeParse(userData);
+            const minimalUser = minimalUserSchema.safeParse(userData);
 
             if (minimalUser.success){
 
