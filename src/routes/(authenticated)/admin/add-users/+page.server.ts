@@ -2,6 +2,7 @@ import {Role} from '@prisma/client';
 import {fail, redirect} from '@sveltejs/kit';
 import {superValidate, message} from 'sveltekit-superforms/server'
 import { minimalUserSchema } from '$lib/schemas/index';
+import prisma from '$lib/server/database';
 
 export async function load ({request, locals: {getSession}}) {
     let user_roles: string[] = [];
@@ -13,6 +14,17 @@ export async function load ({request, locals: {getSession}}) {
         
         throw redirect(307, '/login');
     }
+
+    let isAdmin = await prisma.profile.findUnique({
+        where:
+            {
+                user_id: session.user.id
+            }
+    })
+    if (!isAdmin){
+        throw redirect (307, '/login');
+    }
+
 
     const form = await superValidate(request, minimalUserSchema);
 
