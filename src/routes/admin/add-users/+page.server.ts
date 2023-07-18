@@ -38,6 +38,8 @@ export const actions = {
     default: async ({request, fetch}) => {
         const form = await superValidate(request, minimalUserValidator);
 
+        let userData;
+
         if (form.valid){
             const response = await fetch('/api/admin/users', {
                 method: 'POST',
@@ -54,18 +56,15 @@ export const actions = {
                     'Content-Type': 'application/json'
                 }});
             
-            const userData = await response.json();
+            userData = await response.json();
 
-            
-  
+            console.log(userData);
 
-                console.log(userData);
-
-                return {form, userData}
+            return {form, userData}
 
         }   
         else {
-            return fail(400, {form});
+            return fail(400, {form, userData});
         }
     }
 }
