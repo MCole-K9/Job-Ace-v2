@@ -19,7 +19,7 @@
                 <div class="flex flex-col mb-4">
                     <Label for="email">Email</Label>
                     <Input id="email" class="w-25" type="email"
-                        size="sm" name="email" bind:value={$form.email}/>
+                        size="sm" name="email" bind:value={$addUserForm.email}/>
                     {#if $errors.email}
                         <Helper>{$errors.email}</Helper>
                     {/if}
@@ -28,7 +28,7 @@
                 <div class="flex flex-col mb-4">
                     <Label for="password">Password</Label>
                     <Input id="password" type={passwordType} name="password"
-                        bind:value={$form.password}/>
+                        bind:value={$addUserForm.password}/>
                     {#if $errors.password}
                         <Helper>{$errors.password}</Helper>
                     {/if}
@@ -40,26 +40,26 @@
                     {#if $errors.role}
                         <Helper>{$errors.role}</Helper>
                     {/if}
-                    <Select items={roles} bind:value={$form.role}
+                    <Select items={roles} bind:value={$addUserForm.role}
                         name="role" size="sm"/>
                 </div>
             
                 <!--This entire if block is technically brittle, i am aware-->
-                {#if $form.role === Role.ADMIN}
+                {#if $addUserForm.role === Role.ADMIN}
                     <!--This doesn't need anything, unless for some reason it's necessary to 
                     identify admins by name-->
-                {:else if $form.role === Role.SUPPORT}
+                {:else if $addUserForm.role === Role.SUPPORT}
                     <!--This doesn't need anything, unless for some reason it's necessary to 
                     identify admins by name-->
             
-                {:else if $form.role === Role.USER}
+                {:else if $addUserForm.role === Role.USER}
                     <!--Why is there a generic user role?-->
-                {:else if $form.role === Role.ORGANIZATION_REPRESENTATIVE}
+                {:else if $addUserForm.role === Role.ORGANIZATION_REPRESENTATIVE}
         
                     <div class="flex flex-col mb-4">
                         <Label for="candidate-first-name">First Name</Label>
                         <Input id="candidate-first-name" name="candidate-first-name"
-                            size="sm" bind:value={$form.firstName}/>
+                            size="sm" bind:value={$addUserForm.firstName}/>
                         {#if $errors.firstName}
                             <Helper>{$errors.firstName}</Helper>
                         {/if}
@@ -68,17 +68,17 @@
                     <div class="flex flex-col mb-4">
                         <Label for="candidate-last-name">Last Name</Label>
                         <Input id="candidate-last-name" name="candidate-last-name"
-                            size="sm" bind:value={$form.lastName}/>
+                            size="sm" bind:value={$addUserForm.lastName}/>
                         {#if $errors.lastName}
                             <Helper>{$errors.lastName}</Helper>
                         {/if}
                     </div>
         
-                {:else if $form.role === Role.CAREER_COACH}
+                {:else if $addUserForm.role === Role.CAREER_COACH}
                     <div class="flex flex-col mb-4">
                         <Label for="candidate-first-name">First Name</Label>
                         <Input id="candidate-first-name"
-                            size="sm" bind:value={$form.firstName}/>
+                            size="sm" bind:value={$addUserForm.firstName}/>
                         {#if $errors.firstName}
                             <Helper>{$errors.firstName}</Helper>
                         {/if}
@@ -86,17 +86,17 @@
         
                     <div class="flex flex-col">
                         <Label for="candidate-last-name">Last Name</Label>
-                        <Input id="candidate-last-name" bind:value={$form.lastName}
+                        <Input id="candidate-last-name" bind:value={$addUserForm.lastName}
                             size="sm"/>
                         {#if $errors.lastName}
                             <Helper>{$errors.lastName}</Helper>
                         {/if}
                     </div>
             
-                {:else if $form.role === Role.CANDIDATE}
+                {:else if $addUserForm.role === Role.CANDIDATE}
                     <div class="flex flex-col">
                         <Label for="candidate-first-name">First Name</Label>
-                        <Input id="candidate-first-name" bind:value={$form.firstName}
+                        <Input id="candidate-first-name" bind:value={$addUserForm.firstName}
                             size="sm" />
                         {#if $errors.firstName}
                             <Helper>{$errors.firstName}</Helper>
@@ -105,7 +105,7 @@
             
                     <div class="flex flex-col mb-4">
                         <Label for="candidate-last-name">Last Name</Label>
-                        <Input id="candidate-last-name" bind:value={$form.lastName}
+                        <Input id="candidate-last-name" bind:value={$addUserForm.lastName}
                             size="sm"/>
                         {#if $errors.lastName}
                             <Helper>{$errors.lastName}</Helper>
@@ -124,7 +124,7 @@
         md:w-72
         lg:w-84 h-15"
         id="resultViewer">
-        {#if false}
+        {#if form?.userData.status === 201}
             <Alert 
             class="w-full text break-all
             bg-green-400 font-bold">
@@ -137,11 +137,11 @@
                 <li>First Name: {returnedData.firstName}</li>
                 <li>Last Name: {returnedData.lastName}</li>
             </ul>
-        {:else if false}
+        {:else if form?.userData.status === 500 || form?.userData.status === 422}
             <Alert>Error</Alert>
-            <p class="mx-8"></p>
+            <p class="mx-8">{form?.userData.message}</p>
 
-        {:else if true}
+        {:else if !form?.userData.status}
             <Alert
             class="w-full text break-all font-bold">
                 Create a User
@@ -151,8 +151,8 @@
                 <li class="text">created things will show up here.</li>
                 <li class="text">they're cool</li>
             </ul>
-        {:else if false}
-            <p>You may add another user, or do something else</p>
+        <!-- {:else if userData.}
+            <p>You may add another user, or do something else</p> -->
         {/if}
     </div>
 </div>
@@ -164,12 +164,16 @@
             Select, Alert, Helper
             } from 'flowbite-svelte';
     import {Role} from '@prisma/client';
-	import type { PageData } from './$types.js';
+	import type { ActionData, PageData } from './$types.js';
     import {superForm} from "sveltekit-superforms/client";
 
     export let data: PageData;
+    export let form: ActionData;
+    
+    $: console.log(form);
 
-    const {form, errors, enhance} = superForm(data.form);
+    let userData  = {};
+    const {form: addUserForm, errors, enhance} = superForm(data.form);
 
     type MinimalUser = {
         firstName: string,
@@ -184,6 +188,7 @@
 
     // submission-related
     let returnedData: MinimalUser = {} as MinimalUser;
+
 
     function togglePassword(){
         if (passwordType === "password"){

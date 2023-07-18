@@ -2,7 +2,6 @@ import {Role} from '@prisma/client';
 import {fail, redirect} from '@sveltejs/kit';
 import {superValidate, message} from 'sveltekit-superforms/server'
 import { minimalUserValidator } from '$lib/server/addUser.js';
-import {page} from '$app/stores'
 
 export async function load ({request, locals: {getSession}}) {
     let user_roles: string[] = [];
@@ -16,7 +15,6 @@ export async function load ({request, locals: {getSession}}) {
     // }
 
     const form = await superValidate(request, minimalUserValidator);
-
 
     (() => {
         Object.values(Role).forEach((value) => {
@@ -55,16 +53,15 @@ export const actions = {
                 headers: {
                     'Content-Type': 'application/json'
                 }});
-            console.log(response.status);
-            const userData = await response.json();
-            console.log(userData);
             
-            if (response.status === 201){
-                return { form}
-            }
-            else if (response.status === 500){
-                return { form}
-            }
+            const userData = await response.json();
+
+            
+  
+
+                console.log(userData);
+
+                return {form, userData}
 
         }   
         else {
