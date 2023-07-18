@@ -19,10 +19,6 @@
 	})
 </script>
 
-<svelte:head>
-	<title>Hi Team!!!</title>
-</svelte:head>
 
-<div>
-	<slot />
-</div>
+
+<slot />
