@@ -148,6 +148,8 @@
                     <li>First Name: {form?.userData.first_name}</li>
                     <li>Last Name: {form?.userData.last_name}</li>
                 </ul>
+
+                <p class="mx-8 mt-4">You may add another user</p>
             {:else if form?.userData.status === 500 || form?.userData.status === 422}
                 <Alert>Error</Alert>
                 <p class="mx-8">{form?.userData.message}</p>
@@ -155,7 +157,7 @@
             {:else if !form?.userData.status}
                 
             <!-- {:else if userData.}
-                <p>You may add another user, or do something else</p> -->
+                 -->
             {/if}
         {/if}
         
