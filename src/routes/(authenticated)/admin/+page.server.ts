@@ -4,7 +4,6 @@ import {redirect, error} from '@sveltejs/kit';
 export const load = async ({request, locals}) => {
     
     const session = await locals.getSession();
-    console.log(session);
 
     if (!session){
         redirect(301, '/login')

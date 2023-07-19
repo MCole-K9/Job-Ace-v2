@@ -22,7 +22,7 @@ export async function load ({request, locals: {getSession}}) {
             }
     })
     if (isAdmin?.user_role !== Role.ADMIN){
-        throw redirect (307, '/login');
+        throw error (403, 'You are not authorized to access this page');
     }
 
 
