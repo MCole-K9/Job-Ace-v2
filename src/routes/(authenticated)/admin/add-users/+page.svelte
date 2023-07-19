@@ -165,12 +165,6 @@
     </div>
 </div>
 
-<form method="POST" action="/logout">
-    <button type="submit">logout</button>
-</form>
-
-
-
 <script lang="ts">
     import {Button, Input, Label, Heading, Toggle,
             Select, Alert, Helper

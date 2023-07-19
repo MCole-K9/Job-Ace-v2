@@ -1,5 +1,5 @@
 import {Role} from '@prisma/client';
-import {fail, redirect} from '@sveltejs/kit';
+import {fail, redirect, error} from '@sveltejs/kit';
 import {superValidate, message} from 'sveltekit-superforms/server'
 import { minimalUserSchema } from '$lib/schemas/index';
 import prisma from '$lib/server/database';
