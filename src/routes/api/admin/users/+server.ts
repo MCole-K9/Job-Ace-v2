@@ -19,13 +19,14 @@ export async function POST({request, locals:{getSession}}){
     const userData = result.userData;
 
     // check to see if logged in
-    if (true){
-        /* let isAdmin: boolean = ((userId: string) => { 
-            return true
-        })(session.user.id); */
+    if (session){
+        let isAdmin = await prisma.profile.findUnique({
+            where: {
+                user_id: session.user.id
+            }
+        });
 
-        // then, check to see if they're an admin
-        if (true){
+        if (isAdmin?.user_role === Role.ADMIN){
 
             const supabaseClient = createClient(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, 
                 {

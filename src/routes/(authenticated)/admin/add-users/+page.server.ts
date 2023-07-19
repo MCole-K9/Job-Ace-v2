@@ -9,19 +9,19 @@ export async function load ({request, locals: {getSession}}) {
 
 
     // i'll implement this when login is working
-    let session = await getSession();
+    const session = await getSession();
     if (!session){
         
         throw redirect(307, '/login');
     }
 
-    let isAdmin = await prisma.profile.findUnique({
+    const isAdmin = await prisma.profile.findUnique({
         where:
             {
                 user_id: session.user.id
             }
     })
-    if (!isAdmin){
+    if (isAdmin?.user_role !== Role.ADMIN){
         throw redirect (307, '/login');
     }
 

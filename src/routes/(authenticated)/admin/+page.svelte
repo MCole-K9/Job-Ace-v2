@@ -5,7 +5,3 @@
 </script>
 
 <p>lol</p>
-
-<form method="POST" action="/logout">
-    <button type="submit">logout</button>
-</form>

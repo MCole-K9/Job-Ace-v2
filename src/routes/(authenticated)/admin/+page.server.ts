@@ -1,25 +1,24 @@
-import {redirect, error} from '@sveltejs/kit'
 import prisma from '$lib/server/database';
+import {redirect, error} from '@sveltejs/kit';
 
-
-export async function load ({request, locals: {getSession}}){
+export const load = async ({request, locals}) => {
     
-    // let session = await getSession();
-    // console.log(session);
+    const session = await locals.getSession();
+    console.log(session);
 
-    // if (!session){
-    //     throw redirect(300, '/login');
-    // }
+    if (!session){
+        redirect(301, '/login')
+    }
 
-    // const isAdmin = await prisma.profile.findUnique({
-    //     where: {
-    //         user_id: session?.user.id
-    //     }
-    // })
+    const isAdmin = await prisma.profile.findUnique({
+        where: {
+            user_id: session?.user.id
+        }
+    })
 
-    // if (!isAdmin){
-    //     throw error(403, "you do not have permission to visit this page");
-    // }
+    if (!isAdmin){
+        throw error(403, "you do not have permission to visit this page");
+    }
 
-    return;
+    return {session};
 }
