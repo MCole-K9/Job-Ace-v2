@@ -17,5 +17,6 @@ export const load = async ({ fetch, data, depends }) => {
     data: { session },
   } = await supabase.auth.getSession()
 
-  return { supabase, session }
+  //Hopefully passing the stuff after the spread operator will overwrite with context of local assignment
+  return { ...data, supabase, session }
 }

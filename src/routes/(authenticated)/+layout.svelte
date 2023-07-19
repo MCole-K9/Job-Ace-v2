@@ -15,6 +15,7 @@
 		Chevron,
 		DropdownDivider
 	} from 'flowbite-svelte';
+	import { user } from '$stores/user-store';
 
 	let drawerHidden = true;
 
@@ -41,8 +42,8 @@
 	</div>
 	<Dropdown placement="bottom" triggeredBy="#avatar-menu">
 		<DropdownHeader>
-			<span class="block text-sm"> Bonnie Green </span>
-			<span class="block truncate text-sm font-medium"> name@flowbite.com </span>
+			<span class="block text-sm"> {user.get_name()} </span>
+			<span class="block truncate text-sm font-medium"> {$user?.users.email} </span>
 		</DropdownHeader>
 		<DropdownItem>Dashboard</DropdownItem>
 		<DropdownItem>Settings</DropdownItem>
