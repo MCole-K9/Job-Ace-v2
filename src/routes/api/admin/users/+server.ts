@@ -6,12 +6,30 @@ import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
 
-export async function GET (){
-    // this will probably get all users, i suppose
+export async function GET ({locals: { getSession }}){
+    const session = await getSession();
+
+    if (session){
+        const isAdmin = await prisma.profile.findUnique({
+            where: {
+                user_id: session.user.id
+            }
+        })
+
+        if (isAdmin?.user_role === Role.ADMIN){
+            // now we can do stuff
+        }
+        else {
+            throw error(403, "Forbidden");
+        }
+    }
+    else {
+        throw error (401, "Authentication Required");
+    }
 
 }
 
-export async function POST({request, locals:{getSession}}){
+export async function POST({request, locals:{ getSession }}){
 
     let session = await getSession();
     let result = await request.json();

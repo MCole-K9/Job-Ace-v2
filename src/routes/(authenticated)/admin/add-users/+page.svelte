@@ -6,6 +6,12 @@
     Create New Account
 </Heading>
 
+<Breadcrumb>
+    <BreadcrumbItem href="/admin">Action Center</BreadcrumbItem>
+    <BreadcrumbItem>Add Users</BreadcrumbItem>
+</Breadcrumb>
+
+
 <!--Took forever to remember that tailwind is 'mobile first'-->
 <div class="flex flex-col-reverse mx-auto max-w-fit
     lg:flex-row 
@@ -167,7 +173,7 @@
 
 <script lang="ts">
     import {Button, Input, Label, Heading, Toggle,
-            Select, Alert, Helper
+            Select, Alert, Helper, Breadcrumb, BreadcrumbItem
             } from 'flowbite-svelte';
     import {Role} from '@prisma/client';
 	import type { ActionData, PageData } from './$types.js';
