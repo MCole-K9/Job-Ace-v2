@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
 
+// Returns all users
 export async function GET ({locals: { getSession }}){
     const session = await getSession();
 
@@ -18,6 +19,7 @@ export async function GET ({locals: { getSession }}){
 
         if (isAdmin?.user_role === Role.ADMIN){
             // now we can do stuff
+            // this should probably be paged (look into that)
         }
         else {
             throw error(403, "Forbidden");
@@ -29,6 +31,7 @@ export async function GET ({locals: { getSession }}){
 
 }
 
+// creates a single user
 export async function POST({request, locals:{ getSession }}){
 
     let session = await getSession();
@@ -110,6 +113,7 @@ export async function POST({request, locals:{ getSession }}){
     
 }
 
-export async function DELETE(){
-    // gee, i wonder what this does
+// Deletes a single user
+export async function DELETE({request, locals: {getSession}}){
+    return json('lol');
 }

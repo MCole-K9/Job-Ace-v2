@@ -7,8 +7,6 @@
     View & Modify User Informtion
 </Heading>
 
-<Input/>
-
 <Breadcrumb>
     <BreadcrumbItem href="/admin">Action Center</BreadcrumbItem>
     <BreadcrumbItem>Users</BreadcrumbItem>
@@ -16,41 +14,107 @@
 
 <!--Basic plan, get all users into a table-->
 <div>
-    <Table>
-        <TableHead>
-            <TableHeadCell>
-                <Checkbox />
-            </TableHeadCell>
-            <TableHeadCell>
-                ID
-            </TableHeadCell>
-            <TableHeadCell>
-                Role
-            </TableHeadCell>
-            <TableHeadCell>
-                First Name
-            </TableHeadCell>
-            <TableHeadCell>
-                Last Name
-            </TableHeadCell>
-        </TableHead>
-        <TableBody>
-            <TableBodyRow>
-                <TableBodyCell>
-                    <Checkbox />
-                </TableBodyCell>
-            </TableBodyRow>
-        </TableBody>
-    </Table>
+    <TableSearch bind:inputValue={searchTerm}>
+            <TableHead>
+                <TableHeadCell>
+                    <Checkbox on:change={toggleSelectAll} bind:checked={isSelectAll}/>
+                </TableHeadCell>
+                <TableHeadCell>
+                    ID
+                </TableHeadCell>
+                <TableHeadCell>
+                    Role
+                </TableHeadCell>
+                <TableHeadCell>
+                    First Name
+                </TableHeadCell>
+                <TableHeadCell>
+                    Last Name
+                </TableHeadCell>
+            </TableHead>
+            <TableBody>
+                <TableBodyRow>
+                    <TableBodyCell>
+                        <Checkbox />
+                    </TableBodyCell>
+                    <TableBodyCell>
+                        lol
+                    </TableBodyCell>
+                    <TableBodyCell>
+                        Ruler of Everything
+                    </TableBodyCell>
+                    <TableBodyCell>
+                        Dummy
+                    </TableBodyCell>
+                    <TableBodyCell>
+                        Value
+                    </TableBodyCell>
+                </TableBodyRow>
+            </TableBody>
+    </TableSearch>
 </div>
 
+
 <!--Need a component that pops up to display options-->
+<div class="fixed bottom-0 h-24 border-2 min-w-full mx-0 px-4 pt-4">
+    {#if selectedUsers.length >= 2}
+        <p>(Number) Users Selected</p>
+        <!--Options: 
+            - Delete Users (Require confirmation first)-->
+    {:else if selectedUsers.length === 1}
+        <p>User Selected: (User Id) (User Role) (User Name)</p>
+        <!--Options: 
+            - Modify User Informtion
+            - Delete User
+            - View Infractons for User
+            - View Logs for User-->
+    {:else}
+        <div>
+            <p class="">0 Users Selected</p>
+        </div>
+        <div>
+            <p>
+                You may select a single user, or multiple users, and perform 
+                relevant actions.
+            </p>
+        </div>
+        <!--Prompts:
+            - Check User to access related actions, or selecte multiple users 
+            to delete them-->
+    {/if}
+    
+    <!--Show No users selected
+        or show *user* selected
+        or show *users* selected, and off the ability to view them
+            - if all the users are selected, don't bother to make a list
+            - truncate the list unless the users chooses to see them all
+            - consider: showing a count of users selected/all loaded in users
+            - consider: just showing the list (no names or ids etc.) is number >32
+            - -->
+
+    
+</div>
 
 <script lang="ts">
     import {Heading, Breadcrumb, BreadcrumbItem, Input, Table, TableHead, 
-            TableHeadCell, TableBody, TableBodyRow, TableBodyCell, Checkbox
-            } from 'flowbite-svelte';
+            TableHeadCell, TableBody, TableBodyRow, TableBodyCell, Checkbox, 
+            TableSearch} from 'flowbite-svelte';
 	import type { PageData } from "./$types";
 
     export let data: PageData;
+    
+    let searchTerm: string;
+    let isSelectAll: boolean = false;
+    let isUsersSelected: boolean = false;
+    const selectedUsers: string[] = [];
+
+
+    function toggleSelectAll(){
+        // how do i select and tick all of the rows?
+    }
+
+    function addUserToList(id: string){
+        // this is probably quite straightforward
+    }
+
 </script>
