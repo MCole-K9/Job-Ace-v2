@@ -14,10 +14,11 @@
 
 <!--Basic plan, get all users into a table-->
 <div>
+    <p class="max-w-fit text-right ml-auto mr-8">Showing {users.length} of Y Users</p>
     <TableSearch bind:inputValue={searchTerm}>
             <TableHead>
                 <TableHeadCell>
-                    <Checkbox on:change={toggleSelectAll} bind:checked={isSelectAll}/>
+                    <Checkbox on:click={toggleSelectAll} bind:checked={isSelectAll}/>
                 </TableHeadCell>
                 <TableHeadCell>
                     ID
@@ -36,10 +37,22 @@
                 <!--Object weirdness, it looks bad but i'm keeping it in case 
                     I have to send other data along with the users, otherwise 
                     I'd just destructure it-->
-                {#each data.users.users as user (user.user_id)}
+                {#each users as user (user.user_id)}
                     <TableBodyRow>
                         <TableBodyCell>
-                            <Checkbox />
+                            <Checkbox  on:click={() => {
+
+                                if(selectedUsers.includes(user)){
+                                    let index = selectedUsers.findIndex(value => value === user);
+                                    selectedUsers.splice(index, 1);
+                                    selectedUsers = [...selectedUsers];
+                                }
+                                else {
+                                    selectedUsers = [...selectedUsers, user];
+                                }
+
+                                console.log(selectedUsers);
+                            }}/>
                         </TableBodyCell>
                         <TableBodyCell>
                             {user.user_id}
@@ -62,13 +75,14 @@
 
 
 <!--Need a component that pops up to display options-->
-<div class="fixed bottom-0 h-24 border-2 min-w-full mx-0 px-4 pt-4">
+<div class="fixed bottom-0 h-24 border-2 min-w-full mx-0 px-4 pt-4 bg-white">
     {#if selectedUsers.length >= 2}
-        <p>(Number) Users Selected</p>
+        <p>{selectedUsers.length} Users Selected</p>
         <!--Options: 
             - Delete Users (Require confirmation first)-->
     {:else if selectedUsers.length === 1}
-        <p>User Selected: (User Id) (User Role) (User Name)</p>
+        <p>User Selected: ID: {selectedUsers[0].user_id} ({selectedUsers[0].user_role})
+            {selectedUsers[0].first_name + ' ' + selectedUsers[0].last_name}</p>
         <!--Options: 
             - Modify User Informtion
             - Delete User
@@ -106,21 +120,25 @@
             TableHeadCell, TableBody, TableBodyRow, TableBodyCell, Checkbox, 
             TableSearch} from 'flowbite-svelte';
 	import type { PageData } from "./$types";
+    import type { UserInfo } from '$lib/types/index';
+	import { UserSettingsOutline } from 'flowbite-svelte-icons';
 
     export let data: PageData;
+
+    let users = data.users.users;
     
     let searchTerm: string;
     let isSelectAll: boolean = false;
     let isUsersSelected: boolean = false;
-    const selectedUsers: string[] = [];
+    let selectedUsers: UserInfo[] = [];
 
 
     function toggleSelectAll(){
         // how do i select and tick all of the rows?
     }
 
-    function addUserToList(id: string){
-        // this is probably quite straightforward
+    function toggleUserInList(id: string){
+        console.log(id);
     }
 
 </script>
