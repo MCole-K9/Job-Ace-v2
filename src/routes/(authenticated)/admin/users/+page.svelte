@@ -1,5 +1,5 @@
 <svelte:head>
-    <title>Action Center | Job Ace</title>
+    <title>View Users | Job Ace</title>
 </svelte:head>
 
 <Heading tag="h3" class="mx-auto text-center
@@ -33,23 +33,29 @@
                 </TableHeadCell>
             </TableHead>
             <TableBody>
-                <TableBodyRow>
-                    <TableBodyCell>
-                        <Checkbox />
-                    </TableBodyCell>
-                    <TableBodyCell>
-                        lol
-                    </TableBodyCell>
-                    <TableBodyCell>
-                        Ruler of Everything
-                    </TableBodyCell>
-                    <TableBodyCell>
-                        Dummy
-                    </TableBodyCell>
-                    <TableBodyCell>
-                        Value
-                    </TableBodyCell>
-                </TableBodyRow>
+                <!--Object weirdness, it looks bad but i'm keeping it in case 
+                    I have to send other data along with the users, otherwise 
+                    I'd just destructure it-->
+                {#each data.users.users as user (user.user_id)}
+                    <TableBodyRow>
+                        <TableBodyCell>
+                            <Checkbox />
+                        </TableBodyCell>
+                        <TableBodyCell>
+                            {user.user_id}
+                        </TableBodyCell>
+                        <TableBodyCell>
+                            {user.user_role}
+                        </TableBodyCell>
+                        <TableBodyCell>
+                            {user.first_name}
+                        </TableBodyCell>
+                        <TableBodyCell>
+                            {user.last_name}
+                        </TableBodyCell>
+                    </TableBodyRow>
+                {/each}
+                
             </TableBody>
     </TableSearch>
 </div>
@@ -74,7 +80,7 @@
         </div>
         <div>
             <p>
-                You may select a single user, or multiple users, and perform 
+                You may select a single user, or multiple users, and perform
                 relevant actions.
             </p>
         </div>

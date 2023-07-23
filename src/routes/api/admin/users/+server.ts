@@ -1,10 +1,11 @@
 import {json, error} from '@sveltejs/kit';
 import {Role} from '@prisma/client';
-import { minimalUserSchema } from '$lib/schemas/admin-userSchemas.js';
+import { minimalUserSchema } from '$lib/schemas/index';
 import prisma from '$lib/server/database/index.js'
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
+import type {UserInfo} from '$lib/types/index';
 
 // Returns all users
 export async function GET ({locals: { getSession }}){
@@ -18,8 +19,22 @@ export async function GET ({locals: { getSession }}){
         })
 
         if (isAdmin?.user_role === Role.ADMIN){
-            // now we can do stuff
-            // this should probably be paged (look into that)
+            const users: UserInfo[] = await prisma.profile.findMany({
+                include: {
+                    users: {
+                        select: {
+                            email: true
+                        }
+                    }
+                }
+            })
+
+            if (users){
+                return json({users}, {status: 200, statusText: 'Response Successful'});
+            }
+            else {
+                throw error(500, "Internal Server Error");
+            }
         }
         else {
             throw error(403, "Forbidden");
