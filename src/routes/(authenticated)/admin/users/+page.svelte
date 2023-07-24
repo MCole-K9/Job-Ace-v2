@@ -18,7 +18,32 @@
     <TableSearch bind:inputValue={searchTerm}>
             <TableHead>
                 <TableHeadCell>
-                    <Checkbox on:click={toggleSelectAll} bind:checked={isSelectAll}/>
+                    <Checkbox bind:checked={isSelectAll} on:click={() => {
+
+                        if (isSelectAll){
+                            
+                            selectedUsers = [];
+                            selectedUserIds = [];
+                        }
+                        else {
+                            // i need to do some kind of deep clone of this,
+                            // as it currently deletes items from uses when reset
+                            selectedUsers = JSON.parse(JSON.stringify(users));
+
+                            users.forEach(user => {
+                                if (!selectedUserIds.includes(user.user_id)){
+                                    selectedUserIds.push(user.user_id)
+                                }
+
+                            })
+
+                            selectedUserIds = [...selectedUserIds];
+                            
+                        }
+
+                        console.log(selectedUserIds)
+                        console.log(selectedUsers);
+                    }}/>
                 </TableHeadCell>
                 <TableHeadCell>
                     ID
@@ -40,18 +65,33 @@
                 {#each users as user (user.user_id)}
                     <TableBodyRow>
                         <TableBodyCell>
-                            <Checkbox  on:click={() => {
+                            <Checkbox value={user.user_id} bind:group={selectedUserIds}
+                            on:click={() => {
 
                                 if(selectedUsers.includes(user)){
-                                    let index = selectedUsers.findIndex(value => value === user);
-                                    selectedUsers.splice(index, 1);
+                                    isSelectAll = false;
+                                    // this is not properly unselecting the object properly, 
+                                    // nor is it changing isSelectAll i think. it might be 
+                                    // because `includes` is checking references (duh)
+                                    // and the reference to `user` (the table value) and the 
+                                    // object with the same value are different objects (thanks)
+                                    // to the bastardized deep-copy made with JSON. solution later
+
+                                    let userInfoIndex = selectedUsers.findIndex(value => value === user);
+                                    selectedUsers.splice(userInfoIndex, 1);
                                     selectedUsers = [...selectedUsers];
+
+                                    let userIdIndex = selectedUserIds.findIndex(value => value === user.user_id);
+                                    selectedUserIds.splice(userIdIndex, 1);
+                                    selectedUserIds = [...selectedUserIds];
+
                                 }
                                 else {
                                     selectedUsers = [...selectedUsers, user];
                                 }
 
                                 console.log(selectedUsers);
+                                console.log(selectedUserIds);
                             }}/>
                         </TableBodyCell>
                         <TableBodyCell>
@@ -121,24 +161,14 @@
             TableSearch} from 'flowbite-svelte';
 	import type { PageData } from "./$types";
     import type { UserInfo } from '$lib/types/index';
-	import { UserSettingsOutline } from 'flowbite-svelte-icons';
 
     export let data: PageData;
-
     let users = data.users.users;
     
     let searchTerm: string;
     let isSelectAll: boolean = false;
-    let isUsersSelected: boolean = false;
+    let selectedUserIds: string[] = [];
     let selectedUsers: UserInfo[] = [];
 
-
-    function toggleSelectAll(){
-        // how do i select and tick all of the rows?
-    }
-
-    function toggleUserInList(id: string){
-        console.log(id);
-    }
 
 </script>
