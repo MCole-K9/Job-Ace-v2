@@ -4,7 +4,7 @@
 
 <Heading tag="h3" class="mx-auto text-center
     mt-4 mb-8">
-    View & Modify User Informtion
+    View & Modify User Information
 </Heading>
 
 <Breadcrumb>
@@ -59,9 +59,6 @@
                 </TableHeadCell>
             </TableHead>
             <TableBody>
-                <!--Object weirdness, it looks bad but i'm keeping it in case 
-                    I have to send other data along with the users, otherwise 
-                    I'd just destructure it-->
                 {#each users as user (user.user_id)}
                     <TableBodyRow>
                         <TableBodyCell>
@@ -70,7 +67,7 @@
 
                                 if(selectedUsers.includes(user)){
                                     isSelectAll = false;
-                                    // this is not properly unselecting the object properly, 
+                                    // this is not properly unselecting the object, 
                                     // nor is it changing isSelectAll i think. it might be 
                                     // because `includes` is checking references (duh)
                                     // and the reference to `user` (the table value) and the 
@@ -170,5 +167,10 @@
     let selectedUserIds: string[] = [];
     let selectedUsers: UserInfo[] = [];
 
+    // TODO:
+    // replace table made from `users` with a deep copy of users (filteredUsers)
+    // fix issue with removing items from selected arrays (after filter)
+    // implement search (how?)
+    // implement paged gets to db, button or some other means of getting more users
 
 </script>
