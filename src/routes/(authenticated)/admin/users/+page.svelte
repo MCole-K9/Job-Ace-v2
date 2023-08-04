@@ -12,10 +12,14 @@
     <BreadcrumbItem>Users</BreadcrumbItem>
 </Breadcrumb>
 
-<!--Basic plan, get all users into a table-->
 <div>
-    <p class="max-w-fit text-right ml-auto mr-8">Showing {users.length} of Y Users</p>
-    <TableSearch bind:inputValue={searchTerm}>
+    <p class="max-w-fit text-right ml-auto mr-8">Showing {users.length} of {totalUsers} Users</p>
+    <!--Using the Raw Flowbite component because TableSearch doesn't let you bind `string | null`-->
+    <p></p>
+    <Input bind:value={$searchString} size="sm" placeholder="Search" class="w-64" on:change={() => {
+        // idk how to debounce an input yet, so i'll do it tomorrow
+    }}/>
+    <Table>
             <TableHead>
                 <TableHeadCell>
                     <Checkbox bind:checked={isSelectAll} on:click={() => {
@@ -107,7 +111,7 @@
                 {/each}
                 
             </TableBody>
-    </TableSearch>
+        </Table>
 </div>
 
 
@@ -156,13 +160,18 @@
     import {Heading, Breadcrumb, BreadcrumbItem, Input, Table, TableHead, 
             TableHeadCell, TableBody, TableBodyRow, TableBodyCell, Checkbox, 
             TableSearch} from 'flowbite-svelte';
-	import type { PageData } from "./$types";
-    import type { UserInfo } from '$lib/types/index';
+	import { onMount } from "svelte";
 
-    export let data: PageData;
-    let users = data.users.users;
+    import type { UserInfo } from '$lib/types/index';
+    import { ssp, queryParam } from 'sveltekit-search-params';
+	import type { User } from '@supabase/supabase-js';
     
-    let searchTerm: string;
+    const searchString = queryParam("q", ssp.string());
+    
+    let users: UserInfo[] = [];
+    let totalUsers: number;
+    
+
     let isSelectAll: boolean = false;
     let selectedUserIds: string[] = [];
     let selectedUsers: UserInfo[] = [];
@@ -172,5 +181,20 @@
     // fix issue with removing items from selected arrays (after filter)
     // implement search (how?)
     // implement paged gets to db, button or some other means of getting more users
+
+    async function getUsers(searchString: string){
+        let response = await fetch(`/api/admin/users?string=${searchString}`, {method: 'GET'});
+        if (response.status === 200){
+            let data = await response.json();
+
+            users = (users.length===0) ? [...data.users] : [users, ...data.users];
+            totalUsers = data.usersCount;
+        }
+    }
+
+    onMount(() => {
+        getUsers('test');
+    });
+    
 
 </script>

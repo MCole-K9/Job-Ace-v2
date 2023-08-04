@@ -1,9 +1,10 @@
 import { redirect, error, json } from '@sveltejs/kit';
 import prisma from '$lib/server/database/index';
-import { Role } from '@prisma/client'
+import { Role } from '@prisma/client';
+import { queryParameters } from 'sveltekit-search-params';
 
 
-export async function load ({fetch, request, locals: {getSession}}){
+export async function load ({url ,fetch, request, locals: {getSession}}){
     const session = await getSession();
 
     if (session){
@@ -15,18 +16,8 @@ export async function load ({fetch, request, locals: {getSession}}){
         });
 
         if (isAdmin.user_role === Role.ADMIN){
-            const userRequest = await fetch('/api/admin/users', {
-                method: 'GET'
-            });
-
-            if (userRequest){
-                const users = await userRequest.json();
-                return {users};
-            }
-            else {
-                throw error (500);
-            }
-
+            
+            return;
         }
         else {
             throw error (403, "You do not have permission to visit this page");

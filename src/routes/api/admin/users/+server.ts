@@ -8,7 +8,7 @@ import { PUBLIC_SUPABASE_URL } from '$env/static/public';
 import type {UserInfo} from '$lib/types/index';
 
 // Returns all users
-export async function GET ({locals: { getSession }}){
+export async function GET ({url, request, locals: { getSession }}){
     const session = await getSession();
 
     if (session){
@@ -19,6 +19,8 @@ export async function GET ({locals: { getSession }}){
         })
 
         if (isAdmin?.user_role === Role.ADMIN){
+            let searchString: string | null = url.searchParams.get('string');
+
             const users: UserInfo[] = await prisma.profile.findMany({
                 include: {
                     users: {
@@ -26,11 +28,13 @@ export async function GET ({locals: { getSession }}){
                             email: true
                         }
                     }
-                }
+                },
             })
 
+            const usersCount = await prisma.profile.count();
+
             if (users){
-                return json({users}, {status: 200, statusText: 'Response Successful'});
+                return json({users, usersCount}, {status: 200, statusText: 'Response Successful'});
             }
             else {
                 throw error(500, "Internal Server Error");
