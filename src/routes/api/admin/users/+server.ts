@@ -8,7 +8,7 @@ import { PUBLIC_SUPABASE_URL } from '$env/static/public';
 import type {UserInfo} from '$lib/types/index';
 
 // Returns all users
-export async function GET ({url, request, locals: { getSession }}){
+export async function GET ({url, locals: { getSession }}){
     const session = await getSession();
 
     if (session){
@@ -20,7 +20,21 @@ export async function GET ({url, request, locals: { getSession }}){
 
         if (isAdmin?.user_role === Role.ADMIN){
             let searchString: string | null = url.searchParams.get('string');
+            let pageValue: string | null = url.searchParams.get('page');
+            let pageNumber: number;
+            if (pageValue === null){
+                pageNumber = 0;
+            }
+            else {
+                pageNumber = parseInt(<string>pageValue);
+            }
+            console.log('server: ' + searchString);
+            console.log('server: ' + pageNumber);
 
+            // Need to determine what cases and all to search for with this
+            // also needs to be paginated
+            // noteworthy: prisma has a 'full-text search' preview feature that
+            // might be good
             const users: UserInfo[] = await prisma.profile.findMany({
                 include: {
                     users: {
