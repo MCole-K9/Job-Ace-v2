@@ -22,6 +22,8 @@
         </Search>
         <Button color="blue" size="sm" class="ml-0" on:click={() =>{
             $searchString = searchValue;
+            // i have conditions for empty string and null to anticipate 
+            // problems with sveltekit search params. might not be necessary
             if ($searchString === '') {
                 getUsers();
             }
@@ -48,8 +50,10 @@
                             selectedUserIds = [];
                         }
                         else {
-                            // i need to do some kind of deep clone of this,
-                            // as it currently deletes items from uses when reset
+                            // currently this makes a deep copy of all of the 
+                            // users that currently exist in the users array, 
+                            // then grabs the id and pushes them all into an 
+                            // array
                             selectedUsers = JSON.parse(JSON.stringify(users));
 
                             users.forEach(user => {
@@ -59,6 +63,8 @@
 
                             })
 
+                            // the spread is just to satisfy svelte's assignment
+                            // based reactivity
                             selectedUserIds = [...selectedUserIds];
                             
                         }
@@ -146,16 +152,28 @@
 {/if}
 
 
-<!--Need a component that pops up to display options-->
+<!--
+    The intention of this section is to use a drawer to allow the user to 
+    interact with the selected user records. Interactions are:
+    - Modify User
+        - Change role
+    - Delete User(s)
+    - View User Action Logs (new page)
+    - View User Infraction (new page)
+-->
 <div class="fixed bottom-0 h-24 border-2 min-w-full mx-0 px-4 pt-4 bg-white">
     {#if selectedUsers.length >= 2}
         <p>{selectedUsers.length} Users Selected</p>
-        <!--Options: 
+        <!--Case: More than One user selected
+
+            Options: 
             - Delete Users (Require confirmation first)-->
     {:else if selectedUsers.length === 1}
         <p>User Selected: ID: {selectedUsers[0].user_id} ({selectedUsers[0].user_role})
             {selectedUsers[0].first_name + ' ' + selectedUsers[0].last_name}</p>
-        <!--Options: 
+        <!--Case: Single User selected
+            
+            Options: 
             - Modify User Informtion
             - Delete User
             - View Infractons for User
@@ -202,26 +220,20 @@
     let users: UserInfo[] = [];
     let totalUsers: number;
     
-
+    
     let isSelectAll: boolean = false;
     let selectedUserIds: string[] = [];
     let selectedUsers: UserInfo[] = [];
-    let timer;
+    let timer; // i don't remember what this was *supposed* to be used for
     let page: number;
 
-    // TODO:
-    // replace table made from `users` with a deep copy of users (filteredUsers)
-    // fix issue with removing items from selected arrays (after filter)
-    // implement search (how?)
-    // implement paged gets to db, button or some other means of getting more users
-
-    // this is the first time i've had to write a function with default values for
-    // params. this is so clean lol
     async function getUsers(page: number = 0, searchString: string = ''){
         let response = await fetch(`/api/admin/users?string=${searchString}&page=${page}`, {method: 'GET'});
         if (response.status === 200){
             let data = await response.json();
 
+            // i believe both of these don't currently doesn't work as intended, as they add an empty index
+            // (because the array is empty) before spreading the returned data
             if (page === 0){
                 users = [...data.users]
                 totalUsers = data.usersCount;
@@ -240,6 +252,8 @@
         console.log($searchString);
         page = 0;
 
+        // using empty string and null as conditions to prevent potential, 
+        // and not discovered sveltekit search params problems
         if ($searchString === null){
             getUsers();
         }

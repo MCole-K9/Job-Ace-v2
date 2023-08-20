@@ -130,6 +130,14 @@
         md:w-72
         lg:w-84 h-15"
         id="resultViewer">
+        <!--
+            The feedback section uses the formData to present a 
+            response depending on what the server returns. the cases are:
+            * form is undefined: unintialized
+            * form contains user with id: success
+            * form returns error 422 or 500: some error on the DB
+            * no status: this is currently unused
+        -->
         {#if form?.userData === undefined}
             <Alert
             class="w-full text break-all font-bold">

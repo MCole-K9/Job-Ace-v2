@@ -7,11 +7,6 @@
     Admin Action Center
 </Heading>
 
-<!--
-    Current thoughts:
-    * 4 present functions are fine
--->
-
 <a href="/admin/add-users">Add Users</a>
 <a href="/admin/users">View or Edit Users</a>
 <a href="/admin/infractions">View Recent Infractions</a>

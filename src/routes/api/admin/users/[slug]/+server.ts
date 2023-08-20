@@ -4,3 +4,5 @@ import {json} from '@sveltejs/kit'
 export async function PUT({request, params, locals: {getSession}}){
     return json('lol')
 }
+
+// obviously, a delete function is necessary

@@ -7,8 +7,6 @@ import prisma from '$lib/server/database';
 export async function load ({request, locals: {getSession}}) {
     let user_roles: string[] = [];
 
-
-    // i'll implement this when login is working
     const session = await getSession();
     if (!session){
         
@@ -47,6 +45,7 @@ export async function load ({request, locals: {getSession}}) {
 }
 
 export const actions = {
+    // afaict, superforms requires that you use the default action
     default: async ({request, fetch}) => {
         const form = await superValidate(request, minimalUserSchema);
 

@@ -32,7 +32,7 @@ export async function GET ({url, locals: { getSession }}){
             console.log('server: ' + pageNumber);
 
             // Need to determine what cases and all to search for with this
-            // also needs to be paginated
+            // also needs to be paginated (using cursor-based pagination)
             // noteworthy: prisma has a 'full-text search' preview feature that
             // might be good
             const users: UserInfo[] = await prisma.profile.findMany({
@@ -146,7 +146,7 @@ export async function POST({request, locals:{ getSession }}){
     
 }
 
-// Deletes a single user
+// SHOULD delete a single user
 export async function DELETE({request, locals: {getSession}}){
     return json('lol');
 }
